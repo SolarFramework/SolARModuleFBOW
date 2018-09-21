@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<xpcf-registry>
+    <module uuid="b81f0b90-bdbc-11e8-a355-529269fb1459" name="SolARModuleFBOW" path="$BCOMDEVROOT/bcomBuild/SolARModuleFBOW/0.4.0/lib/x86_64/shared">
+        <component uuid="9d1b1afa-bdbc-11e8-a355-529269fb1459" description="SolARKeyframeRetrieverFBOW">
+                <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" description="IComponentIntrospect"/>
+                <interface uuid="f60980ce-bdbd-11e8-a355-529269fb1459" description="IKeyframeRetriever"/>
+        </component>
+    </module>    
+</xpcf-registry>
