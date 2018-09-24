@@ -19,20 +19,20 @@
 namespace xpcf = org::bcom::xpcf;
 
 
-XPCF_DEFINE_FACTORY_CREATE_INSTANCE(SolAR::MODULES::FBOW::SolARKeyframeretrieverFBOW)
+XPCF_DEFINE_FACTORY_CREATE_INSTANCE(SolAR::MODULES::FBOW::SolARKeyframeRetrieverFBOW)
 
 namespace SolAR {
 using namespace datastructure;
 namespace MODULES {
 namespace FBOW {
 
-SolARKeyframeRetrieverFBOW::SolARKeyframRretrieverFBOW():ConfigurableBase(xpcf::toUUID<SolARKeyframeRetrieverFBOW>())
+SolARKeyframeRetrieverFBOW::SolARKeyframeRetrieverFBOW():ConfigurableBase(xpcf::toUUID<SolARKeyframeRetrieverFBOW>())
 {
-    addInterface<api::solver::map::IKeyframeRetriever>(this);
+    addInterface<api::reloc::IKeyframeRetriever>(this);
 
     SRef<xpcf::IPropertyMap> params = getPropertyRootNode();
 
-    params->wrapString("VOCpath",m_VOCpath);
+    params->wrapString("VOCpath",m_VOCPath);
     params->wrapFloat("threshold", m_threshold);
 
    LOG_DEBUG("SolARKeyframeRetrieverFBOW constructor");

@@ -16,15 +16,12 @@
 #ifndef SOLARKEYFRAMERETRIEVERFBOW_H
 #define SOLARKEYFRAMERETRIEVERFBOW_H
 
+#include "api/reloc/IKeyframeRetriever.h"
+#include "SolARFBOWAPI.h"
+#include "xpcf/component/ConfigurableBase.h"
 #include <vector>
 
-#include "api/solver/map/IKeyframeRetriever.h"
-
-#include "SolARFBOWAPI.h"
-
-#include "xpcf/component/ConfigurableBase.h"
-
-// headers to fbow
+#include "fbow.h"
 
 namespace SolAR {
 using namespace datastructure;
@@ -36,7 +33,7 @@ namespace FBOW {
  * @brief TODO
  */
 class SOLARFBOW_EXPORT_API SolARKeyframeRetrieverFBOW : public org::bcom::xpcf::ConfigurableBase,
-    public api::solver::map::IKeyframeRetriever
+    public api::reloc::IKeyframeRetriever
 {
 public:
     SolARKeyframeRetrieverFBOW();
@@ -55,8 +52,7 @@ public:
     /// @param[in] frame: the frame for which we want to retrieve close keyframes.
     /// @param[out] keyframes: a set of keyframe which are close to the frame pass in input
     /// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-    FrameworkReturnCode retrieve(const SRef<Frame> frame,
-                                 std::vector<SRef<Keyframe>>& keyframes) override;
+    FrameworkReturnCode retrieve(const SRef<Frame> frame, std::vector<SRef<Keyframe>>& keyframes) override;
 
 private:
 
@@ -65,6 +61,8 @@ private:
 
     /// @brief the threshold above which keyframes are considered valid
     float m_threshold = 0;
+};
+
 }
 }
 }
