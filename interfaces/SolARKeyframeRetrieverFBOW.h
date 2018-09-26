@@ -57,10 +57,19 @@ public:
 private:
 
     /// @brief path to the vocabulary file
-    std::string m_VOCPath = "";
+    std::string m_VOCPath   = "";
 
     /// @brief the threshold above which keyframes are considered valid
-    float m_threshold = 0;
+    float m_threshold       = 0;
+
+    /// @brief a vocabulary of visual words
+    fbow::Vocabulary        m_VOC;
+
+	/// @brief a list BoW descriptor of keyframes
+	std::vector<fbow::fBow> m_list_KFBoW;
+
+	/// @brief a list of keyframes
+	std::vector<SRef<Keyframe>> m_list_keyframes;
 };
 
 }

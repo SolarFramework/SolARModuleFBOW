@@ -22,7 +22,7 @@ include_directories(
 	src/
 )
 
-install (FILES "${CMAKE_CURRENT_SOURCE_DIR}/xpcf_SolARModuleOpenGL_registry.xml" DESTINATION $ENV{BCOMDEVROOT}/.xpcf/SolAR/	)
+install (FILES "${CMAKE_CURRENT_SOURCE_DIR}/xpcf_SolARModuleFBOW_registry.xml" DESTINATION $ENV{BCOMDEVROOT}/.xpcf/SolAR/	)
 
 ##################################################
 

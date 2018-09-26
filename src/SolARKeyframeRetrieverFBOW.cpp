@@ -48,20 +48,59 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
 {
     LOG_DEBUG(" SolARKeyframeRetrieverFBOW onConfigured");
 
-    // HERE, all you need for your initialization
+    // Load a vocabulary from m_VOCpath
+    m_VOC.readFromFile(m_VOCPath);
+    if (!m_VOC.isValid()){
+        LOG_DEBUG(" SolARKeyframeRetrieverFBOW onConfigured: Cannot load the vocabulary from file");
+        return xpcf::_ERROR_INVALID_ARGUMENT;
+    }
 
     return xpcf::_SUCCESS;
 }
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(SRef<Keyframe> keyframe)
 {
+	// convert desc of keyframe to Mat opencv
+	SRef<DescriptorBuffer> desc_Solar = keyframe->getDescriptors();
+	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
+
+	// get bow desc corresponding to keyframe desc
+	fbow::fBow v_bow;
+	v_bow = m_VOC.transform(desc_OpenCV);
+
+	// add bow desc and keyfram to the lists
+	m_list_KFBoW.push_back(v_bow);
+	m_list_keyframes.push_back(keyframe);
 
     return FrameworkReturnCode::_SUCCESS;
 }
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, std::vector<SRef<Keyframe>>& keyframes)
 {
+	// convert frame desc to Mat opencv
+	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
+	if (desc_Solar->getNbDescriptors() == 0)
+		return FrameworkReturnCode::_ERROR_;
+	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
 
+	// get bow desc corresponding to keyframe desc
+	fbow::fBow v_bow;
+	v_bow = m_VOC.transform(desc_OpenCV);	
+
+	// find the nearest keyframe
+	int index_nearest_kf = 0;
+	double max_score = 0;
+	for (int i = 0; i < m_list_KFBoW.size(); ++i) {
+		double score = m_list_KFBoW[i].score(m_list_KFBoW[i], v_bow);
+		if (score > max_score) {
+			max_score = score;
+			index_nearest_kf = i;
+		}
+	}
+	if (max_score < m_threshold)
+		return FrameworkReturnCode::_ERROR_;
+
+	keyframes.push_back(m_list_keyframes[index_nearest_kf]);
     return FrameworkReturnCode::_SUCCESS;
 }
 
