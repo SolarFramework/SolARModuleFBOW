@@ -29,6 +29,7 @@ class SolARKeyframeRetrieverFBOW;
 
 XPCF_DEFINE_COMPONENT_TRAITS(SolAR::MODULES::FBOW::SolARKeyframeRetrieverFBOW,
                              "9d1b1afa-bdbc-11e8-a355-529269fb1459",
+                             "SolARKeyframeRetrieverFBOW",
                              "SolAR::MODULES::FBOW::SolARKeyframeRetrieverFBOW component")
 
 #endif // SOLARMODULEFBOW_TRAITS_H
