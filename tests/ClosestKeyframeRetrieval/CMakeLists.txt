@@ -52,11 +52,6 @@ set(FILES_TO_COPY
 	$ENV{BCOMDEVROOT}/thirdParties/boost/1.68.0/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}boost_fiber.${LIBEXTENSION}
 	$ENV{BCOMDEVROOT}/thirdParties/boost/1.68.0/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}boost_context.${LIBEXTENSION}
 
-	$ENV{BCOMDEVROOT}/bcomBuild/SolARModuleOpenCV/0.4.0/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}SolARModuleOpenCV.${LIBEXTENSION}
-	$ENV{BCOMDEVROOT}/bcomBuild/SolARModuleFBOW/0.4.0/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}SolARModuleFBOW.${LIBEXTENSION}
-	$ENV{BCOMDEVROOT}/bcomBuild/SolARModuleNonFreeOpenCV/0.4.0/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}SolARModuleNonFreeOpenCV.${LIBEXTENSION}
-	$ENV{BCOMDEVROOT}/bcomBuild/SolARModuleTools/0.4.0/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}SolARModuleTools.${LIBEXTENSION}
-	$ENV{BCOMDEVROOT}/bcomBuild/SolARModuleOpenGL/0.4.0/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}SolARModuleOpenGL.${LIBEXTENSION}
 	$ENV{BCOMDEVROOT}/bcomBuild/SolARFramework/0.4.0/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}SolARFramework.${LIBEXTENSION}
 	$ENV{BCOMDEVROOT}/thirdParties/xpcf/2.0.1/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}xpcf.${LIBEXTENSION}
 	$ENV{BCOMDEVROOT}/thirdParties/freeglut/3.0.0/lib/x86_64/shared/${BUILDCONFIG}/${LIBPREFIX}${LIBGLUT}glut.${LIBEXTENSION}
