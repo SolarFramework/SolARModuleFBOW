@@ -1,3 +1,11 @@
+*.user
+
+*-Debug
+
+*-Release
+
+*.vcxproj*
+
 # Prerequisites
 *.d
 
@@ -6,6 +14,8 @@
 *.lo
 *.o
 *.obj
+
+.\build
 
 # Precompiled Headers
 *.gch
@@ -30,3 +40,24 @@
 *.exe
 *.out
 *.app
+
+#others
+
+*.rej
+*.stash
+*.rc
+*.res
+*.exp
+*.ilk
+*.pdb
+
+# Visual Studio files
+.vs*
+x64*
+
+*.log
+*.tlog
+*.TMP
+*.tmp
+
+
