@@ -1,5 +1,5 @@
 TARGET = SolARTestModuleFBOWClosestKeyframeRetrieval
-VERSION=0.5.0
+VERSION=0.5.1
 
 CONFIG += c++11
 CONFIG -= qt

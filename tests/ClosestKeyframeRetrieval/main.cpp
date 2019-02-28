@@ -35,6 +35,7 @@
 #include "api/features/IKeypointDetector.h"
 #include "api/features/IDescriptorsExtractor.h"
 #include "api/reloc/IKeyframeRetriever.h"
+#include "core/Log.h"
 
 
 using namespace SolAR;
