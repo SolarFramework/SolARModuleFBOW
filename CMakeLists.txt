@@ -14,14 +14,6 @@ set (HEADERS
     interfaces/SolARKeyframeRetrieverFBOW.h
 )
 
-find_package(OpenGL REQUIRED)
-
-
-
-include_directories(
-	src/
-)
-
 install (FILES "${CMAKE_CURRENT_SOURCE_DIR}/xpcf_SolARModuleFBOW_registry.xml" DESTINATION $ENV{BCOMDEVROOT}/.xpcf/SolAR/	)
 
 ##################################################
