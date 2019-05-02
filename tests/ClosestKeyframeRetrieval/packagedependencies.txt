@@ -7,4 +7,3 @@ opencv|3.4.3|opencv|thirdParties|https://github.com/SolarFramework/binaries/rele
 spdlog|0.14.0|spdlog|thirdParties|https://github.com/SolarFramework/binaries/releases/download
 eigen|3.3.5|eigen|thirdParties|https://github.com/SolarFramework/binaries/releases/download
 fbow|0.0.1|fbow|thirdParties|https://github.com/SolarFramework/binaries/releases/download
-
