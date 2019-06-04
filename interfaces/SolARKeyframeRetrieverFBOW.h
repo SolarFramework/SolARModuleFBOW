@@ -30,8 +30,11 @@ namespace FBOW {
 
 /**
  * @class SolARKeyframeRetrieverFBOW
- * @brief TODO
+ * @brief <B>Retrieves keyframes closest to an input frame based on a Fast Bag Of Words implementaton.</B>
+ * <TT>UUID: 9d1b1afa-bdbc-11e8-a355-529269fb1459</TT>
+ *
  */
+
 class SOLARFBOW_EXPORT_API SolARKeyframeRetrieverFBOW : public org::bcom::xpcf::ConfigurableBase,
     public api::reloc::IKeyframeRetriever
 {
