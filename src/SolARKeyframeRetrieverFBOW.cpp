@@ -31,10 +31,8 @@ SolARKeyframeRetrieverFBOW::SolARKeyframeRetrieverFBOW():ConfigurableBase(xpcf::
 {
     addInterface<api::reloc::IKeyframeRetriever>(this);
 
-    SRef<xpcf::IPropertyMap> params = getPropertyRootNode();
-
-    params->wrapString("VOCpath",m_VOCPath);
-    params->wrapFloat("threshold", m_threshold);
+    declareProperty("VOCpath",m_VOCPath);
+    declareProperty("threshold", m_threshold);
 
    LOG_DEBUG("SolARKeyframeRetrieverFBOW constructor");
 
