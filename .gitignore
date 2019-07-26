@@ -55,9 +55,14 @@
 .vs*
 x64*
 
+# documentation
+doc/
+doxygen/
+
 *.log
 *.tlog
 *.TMP
 *.tmp
 
 
+build/

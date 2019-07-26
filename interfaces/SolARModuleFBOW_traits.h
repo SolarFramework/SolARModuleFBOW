@@ -30,6 +30,6 @@ class SolARKeyframeRetrieverFBOW;
 XPCF_DEFINE_COMPONENT_TRAITS(SolAR::MODULES::FBOW::SolARKeyframeRetrieverFBOW,
                              "9d1b1afa-bdbc-11e8-a355-529269fb1459",
                              "SolARKeyframeRetrieverFBOW",
-                             "SolAR::MODULES::FBOW::SolARKeyframeRetrieverFBOW component")
+                             "Retrieves keyframes closest to an input frame based on a Fast Bag Of Words implementaton.")
 
 #endif // SOLARMODULEFBOW_TRAITS_H
