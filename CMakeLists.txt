@@ -19,7 +19,7 @@ install (FILES "${CMAKE_CURRENT_SOURCE_DIR}/xpcf_SolARModuleFBOW_registry.xml" D
 ##################################################
 
 # various macros
-include("$ENV{BCOMDEVROOT}/bcomBuild/SolARFramework/solarmacros.cmake")
+include("$ENV{BCOMDEVROOT}/SolARFramework/solarmacros.cmake")
 # config setup
 setup()
 # process packagedependencies.txt
