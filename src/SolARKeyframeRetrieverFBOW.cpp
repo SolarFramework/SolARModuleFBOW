@@ -86,21 +86,56 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame
 	fbow::fBow v_bow;
 	v_bow = m_VOC.transform(desc_OpenCV);	
 
-	// find the nearest keyframe
-	int index_nearest_kf = 0;
-	double max_score = 0;
+	// find nearest keyframes
+	std::multimap<double, int> sortDisKeyframes;
 	for (int i = 0; i < m_list_KFBoW.size(); ++i) {
 		double score = m_list_KFBoW[i].score(m_list_KFBoW[i], v_bow);
-		if (score > max_score) {
-			max_score = score;
-			index_nearest_kf = i;
-		}
+		if (score > m_threshold)
+			sortDisKeyframes.insert(std::pair<double, int>(-score, i));
 	}
-	if (max_score < m_threshold)
+
+	for (auto it = sortDisKeyframes.begin(); it != sortDisKeyframes.end(); it++) {
+		keyframes.push_back(m_list_keyframes[it->second]);
+		if (keyframes.size() >= 3)
+			break;
+	}
+
+	if (keyframes.size() == 0)
 		return FrameworkReturnCode::_ERROR_;
 
-	keyframes.push_back(m_list_keyframes[index_nearest_kf]);
     return FrameworkReturnCode::_SUCCESS;
+}
+
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, std::set<unsigned int> &idxKfCandidates, std::vector<SRef<Keyframe>> & keyframes)
+{
+	// convert frame desc to Mat opencv
+	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
+	if (desc_Solar->getNbDescriptors() == 0)
+		return FrameworkReturnCode::_ERROR_;
+	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
+
+	// get bow desc corresponding to keyframe desc
+	fbow::fBow v_bow;
+	v_bow = m_VOC.transform(desc_OpenCV);
+
+	// find nearest keyframes
+	std::multimap<double, int> sortDisKeyframes;
+	for (auto it = idxKfCandidates.begin(); it != idxKfCandidates.end(); it++) {
+		double score = m_list_KFBoW[*it].score(m_list_KFBoW[*it], v_bow);
+		if (score > m_threshold)
+			sortDisKeyframes.insert(std::pair<double, int>(-score, *it));
+	}
+
+	for (auto it = sortDisKeyframes.begin(); it != sortDisKeyframes.end(); it++) {
+		keyframes.push_back(m_list_keyframes[it->second]);
+		if (keyframes.size() >= 3)
+			break;
+	}
+
+	if (keyframes.size() == 0)
+		return FrameworkReturnCode::_ERROR_;
+
+	return FrameworkReturnCode::_SUCCESS;
 }
 
 

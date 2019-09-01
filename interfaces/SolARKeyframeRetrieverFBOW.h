@@ -57,6 +57,13 @@ public:
     /// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
     FrameworkReturnCode retrieve(const SRef<Frame> frame, std::vector<SRef<Keyframe>>& keyframes) override;
 
+	/// @brief Retrieve a set of keyframes close to the frame pass in input.
+	/// @param[in] frame: the frame for which we want to retrieve close keyframes.
+	/// @param[in] index: a set includes index of keyframe candidates
+	/// @param[out] keyframes: a set of keyframe which are close to the frame pass in input
+	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
+	FrameworkReturnCode retrieve(const SRef<Frame> frame, std::set<unsigned int> &idxKfCandidates, std::vector<SRef<Keyframe>> & keyframes) override;
+
 private:
 
     /// @brief path to the vocabulary file
