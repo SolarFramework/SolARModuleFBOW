@@ -3,6 +3,7 @@ QT       -= core gui
 CONFIG -= qt
 
 ## global defintions : target lib name, version
+INSTALLSUBDIR = SolARBuild
 TARGET = SolARModuleFBOW
 
 FRAMEWORK = $$TARGET
