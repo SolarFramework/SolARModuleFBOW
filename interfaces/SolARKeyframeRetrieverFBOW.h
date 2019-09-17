@@ -64,6 +64,30 @@ public:
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
 	FrameworkReturnCode retrieve(const SRef<Frame> frame, std::set<unsigned int> &idxKfCandidates, std::vector<SRef<Keyframe>> & keyframes) override;
 
+	/// @brief Match a frame with a keyframe
+	/// @param[in] frame: the frame to match.
+	/// @param[in] index: index of keyframe
+	/// @param[out] matches: a set of matches between frame and keyframe
+	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
+	FrameworkReturnCode match(const SRef<Frame> frame, int index, std::vector<DescriptorMatch> &matches) override;
+
+	/// @brief Match a set of descriptors with a keyframe
+	/// @param[in] indexDescriptors: index of descriptors to match.
+	/// @param[in] descriptors: a descriptor buffer contains all descriptors
+	/// @param[in] indexKeyframe: index of keyframe
+	/// @param[out] matches: a set of matches between frame and keyframe
+	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
+	FrameworkReturnCode match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> &descriptors, int indexKeyframe, std::vector<DescriptorMatch> &matches) override;
+
+private:
+	/// @brief Match a feature to a set of features
+	/// @param[in] feature1: a feature
+	/// @param[in] features2: a set of features
+	/// @param[in] idx: a set of indices of used features2
+	/// @param[out] bestIdx: the best found index of features2 matched to feature1. (-1: not found)
+	/// @param[out] bestDist: the best corresponding distance
+	void findBestMatches(const cv::Mat &feature1, const cv::Mat &features2, std::vector<uint32_t> &idx, int &bestIdx, float &bestDist);
+
 private:
 
     /// @brief path to the vocabulary file
@@ -73,13 +97,28 @@ private:
     float m_threshold       = 0;
 
     /// @brief a vocabulary of visual words
-    fbow::Vocabulary        m_VOC;
+    fbow::Vocabulary        m_VOC;	
 
 	/// @brief a list BoW descriptor of keyframes
 	std::vector<fbow::fBow> m_list_KFBoW;
 
+	/// @brief level stored for BoW2
+	int	m_level				= 1;
+
+	/// @brief a list BoW2 descriptor of keyframes which save index of feature at nodes of the expected level
+	std::vector<fbow::fBow2> m_list_KFBoW2;
+
 	/// @brief a list of keyframes
 	std::vector<SRef<Keyframe>> m_list_keyframes;
+
+	/// @brief a list of opencv descriptor
+	std::vector<cv::Mat> m_list_des;
+
+	/// @brief distance ratio used to keep good matches.
+	float m_distanceRatio = 0.7;
+
+	/// @brief distance max used to keep good matches.
+	float m_distanceMax = 100;
 };
 
 }
