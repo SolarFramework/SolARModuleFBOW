@@ -1,5 +1,5 @@
 opencv|3.4.3|opencv|thirdParties@github|https://github.com/SolarFramework/binaries/releases/download
-fbow|0.0.1|fbow|thirdParties@github|https://github.com/SolarFramework/binaries/releases/download
+fbowSolAR|0.0.1|fbowSolAR|thirdParties@github|https://github.com/SolarFramework/binaries/releases/download
 SolARFramework|0.6.0|SolARFramework|SolARBuild@github|https://github.com/SolarFramework/SolarFramework/releases/download
 
 
