@@ -38,12 +38,7 @@ DEFINES += "_BCOM_SHARED=__declspec(dllexport)"
 
 INCLUDEPATH += interfaces/
 
-HEADERS += interfaces/SolARFBOWAPI.h \
-    interfaces/SolARModuleFBOW_traits.h \
-    interfaces/SolARKeyframeRetrieverFBOW.h 
-
-SOURCES += src/SolARModuleFBOW.cpp \
-    src/SolARKeyframeRetrieverFBOW.cpp
+include (SolARModuleFBOW.pri)
 	
 unix {
     QMAKE_CXXFLAGS += -Wignored-qualifiers
