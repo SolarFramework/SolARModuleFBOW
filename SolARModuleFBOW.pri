@@ -4,4 +4,4 @@ HEADERS += interfaces/SolARFBOWAPI.h \
 
 SOURCES += src/SolARModuleFBOW.cpp \
     src/SolARKeyframeRetrieverFBOW.cpp
-	
+
