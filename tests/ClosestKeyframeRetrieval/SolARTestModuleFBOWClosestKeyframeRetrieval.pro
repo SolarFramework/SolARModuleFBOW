@@ -1,5 +1,5 @@
 TARGET = SolARFBOWClosestKeyframeRetrieval
-VERSION=0.5.2
+VERSION=0.7.0
 
 CONFIG += c++11
 CONFIG -= qt
@@ -8,17 +8,18 @@ CONFIG += console
 DEFINES += MYVERSION=$${VERSION}
 
 CONFIG(debug,debug|release) {
-    DEPENDENCIESCONFIG = shared recurse
+	TARGETDEPLOYDIR = $${PWD}/../bin/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
 }
 
 CONFIG(release,debug|release) {
-    DEPENDENCIESCONFIG = shared install_recurse # install only in release mode
-    TARGETDEPLOYDIR = $${PWD}\..\bin
+    TARGETDEPLOYDIR = $${PWD}/../bin/Release
     DEFINES += _NDEBUG=1
     DEFINES += NDEBUG=1
 }
+
+DEPENDENCIESCONFIG = shared install_recurse
 
 win32:CONFIG -= static
 win32:CONFIG += shared
@@ -56,7 +57,7 @@ win32 {
 }
 
 configfile.path = $${TARGETDEPLOYDIR}/
-configfile.files = $${PWD}/SolARFBOWClosestKeyframeRetrieval_conf.xml $${PWD}/akaze.fbow
+configfile.files = $${PWD}/SolARFBOWClosestKeyframeRetrieval_conf.xml
 INSTALLS += configfile
 
 #NOTE : Must be placed at the end of the .pro
