@@ -49,7 +49,7 @@
             <property name="threshold" type="Float" value="3e-4"/>
         </component>
 				<component uuid="9d1b1afa-bdbc-11e8-a355-529269fb1459">  <!-- SolARKeyframeRetrieverFBOW -->
-			<property name="VOCpath" type="String" value="akaze.fbow"/>
+			<property name="VOCpath" type="String" value="../../data/akaze.fbow"/>
 			<property name="threshold" type="Float" value="0.01"/>
 		</component>
 
