@@ -30,7 +30,7 @@ pipeline {
 
         stage("Get Third Parties") {
             steps {
-                installDependency('fbowSolAR','0.0.1')
+                installDependency('fbow','0.0.1')
             }
         }            
 
