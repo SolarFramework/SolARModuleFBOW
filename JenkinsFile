@@ -1,0 +1,59 @@
+pipeline {
+    agent {
+        label "jenkins-slave-argo-qmake"
+    }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+    parameters {
+        gitParameter branchFilter: 'origin/(.*)', type: 'PT_BRANCH', selectedValue: 'DEFAULT',
+                name: 'BRANCH', defaultValue: 'develop', useRepository: '.*SolARModuleFBOW.git'
+    }
+    stages {
+
+        stage("Checkout"){
+            steps {
+                sh "git checkout ${BRANCH}"
+            }
+        }
+
+        stage("Get Binaries") {
+            steps {
+                script {
+                     BRANCH = BRANCH.replace('/','_')
+                }
+                withCredentials([usernamePassword(credentialsId: 'bc6e150e-ede8-4e35-8af4-0f037edee8ac', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                     getBinaries(BRANCH,USERNAME,PASSWORD)
+                }
+            }
+        }
+
+        stage("Get Third Parties") {
+            steps {
+                installDependency('fbowSolAR','0.0.1')
+            }
+        }            
+
+        stage("Build") {
+            steps {
+                withEnv(['REMAKEN_RULES_ROOT=/home/jenkins/.remaken/rules/']) {
+                    sh "qmake SolARModuleFBOW.pro"
+                    sh "make"
+                }
+            }
+        }
+
+        stage("Share Binaries") {
+            steps {
+                script {
+                     sh "make install"
+                     BRANCH = BRANCH.replace('/','_')
+                }
+                withCredentials([usernamePassword(credentialsId: 'bc6e150e-ede8-4e35-8af4-0f037edee8ac', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                     shareBinaries(BRANCH,USERNAME,PASSWORD)
+                }
+            }
+        }        
+    }
+
+}
