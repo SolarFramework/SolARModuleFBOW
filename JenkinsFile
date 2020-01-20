@@ -8,6 +8,9 @@ pipeline {
     parameters {
         gitParameter branchFilter: 'origin/(.*)', type: 'PT_BRANCH', selectedValue: 'DEFAULT',
                 name: 'BRANCH', defaultValue: 'develop', useRepository: '.*SolARModuleFBOW.git'
+        booleanParam(name: 'RELEASE',
+            defaultValue: false,
+            description: 'Create a Release')                
     }
     stages {
 
@@ -18,6 +21,9 @@ pipeline {
         }
 
         stage("Get Binaries") {
+            when {
+                expression { params.RELEASE == false }
+            }                   
             steps {
                 script {
                      BRANCH = BRANCH.replace('/','_')
@@ -29,6 +35,9 @@ pipeline {
         }
 
         stage("Get Third Parties") {
+            when {
+                expression { params.RELEASE == false }
+            }                   
             steps {
                 installDependency('fbowSolAR','0.0.1')
             }
@@ -43,7 +52,23 @@ pipeline {
             }
         }
 
+        stage("Build Debug") {
+            when {
+                expression { params.RELEASE == true }
+            }            
+             steps {
+                 withEnv(['REMAKEN_RULES_ROOT=/home/jenkins/.remaken/rules/']) {
+                     sh "qmake SolARModuleFBOW.pro CONFIG+=debug"
+                     sh "make"
+                     sh "make install"
+                 }
+             }
+        }          
+
         stage("Share Binaries") {
+            when {
+                expression { params.RELEASE == false }
+            }                   
             steps {
                 script {
                      sh "make install"
@@ -53,7 +78,26 @@ pipeline {
                      shareBinaries(BRANCH,USERNAME,PASSWORD)
                 }
             }
-        }        
+        }     
+
+        stage("Release") {
+            when {
+                expression { params.RELEASE == true }
+            }
+            steps {
+                script {
+                    version = sh (
+                        script: "cat *.pro  | grep VERSION | head -1 | cut -d '=' -f 2",
+                        returnStdout: true
+                    )
+                    version = version.replace("\n","")
+                }                
+                prepareRelease("SolARBuild","linux-gcc","SolARModuleFBOW")                
+                withCredentials([string(credentialsId: 'github-token', variable: 'token')]) {
+                    release("SolARModuleFBOW","${version}","${WORKSPACE}/artifactory/x86_64_shared_release/SolARModuleFBOW_${version}_x86_64_shared_release.zip ${WORKSPACE}/artifactory/x86_64_shared_debug/SolARModuleFBOW_${version}_x86_64_shared_debug.zip",token);
+                }
+            }   
+        }           
     }
 
 }
