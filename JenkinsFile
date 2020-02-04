@@ -27,12 +27,23 @@ pipeline {
             }
         }
 
+       stage("Get Third Parties") {
+             when {
+                expression { params.RELEASE == true }
+             }               
+             steps {
+                getThirdParties('1.0.0')
+             }
+        }
+
+
         stage("Get Third Parties") {
             when {
                 expression { params.RELEASE == false }
             }                   
             steps {
                 installDependency('fbowSolAR','0.0.1')
+                installDependency('opencv','3.4.3')
             }
         }            
 
