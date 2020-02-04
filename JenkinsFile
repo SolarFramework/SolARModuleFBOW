@@ -27,7 +27,7 @@ pipeline {
             }
         }
 
-       stage("Get Third Parties") {
+       stage("Get Third Parties Release") {
              when {
                 expression { params.RELEASE == true }
              }               
