@@ -64,5 +64,6 @@ doxygen/
 *.TMP
 *.tmp
 
+tests/bin
 
 build/

@@ -3,10 +3,11 @@ QT       -= core gui
 CONFIG -= qt
 
 ## global defintions : target lib name, version
+INSTALLSUBDIR = SolARBuild
 TARGET = SolARModuleFBOW
 
 FRAMEWORK = $$TARGET
-VERSION=0.6.0
+VERSION=0.7.0
 
 DEFINES += MYVERSION=$${VERSION}
 DEFINES += TEMPLATE_LIBRARY
@@ -23,10 +24,13 @@ CONFIG(release,debug|release) {
     DEFINES += NDEBUG=1
 }
 
+DEPENDENCIESCONFIG = shared recurse install
 
-DEPENDENCIESCONFIG = shared recurse
+## Configuration for Visual Studio to install binaries and dependencies. Work also for QT Creator by replacing QMAKE_INSTALL
+PROJECTCONFIG = QTVS
 
-include (../builddefs/qmake/templatelibconfig.pri)
+#NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib, QMAKE_TARGET.arch and PROJECTDEPLOYDIR MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
+include ($$shell_quote($$shell_path($$(REMAKEN_RULES_ROOT)/qmake/templatelibconfig.pri)))  # Shell_quote & shell_path required for visual on windows
 
 ## DEFINES FOR MSVC/INTEL C++ compilers
 msvc {
@@ -35,12 +39,7 @@ DEFINES += "_BCOM_SHARED=__declspec(dllexport)"
 
 INCLUDEPATH += interfaces/
 
-HEADERS += interfaces/SolARFBOWAPI.h \
-    interfaces/SolARModuleFBOW_traits.h \
-    interfaces/SolARKeyframeRetrieverFBOW.h 
-
-SOURCES += src/SolARModuleFBOW.cpp \
-    src/SolARKeyframeRetrieverFBOW.cpp
+include (SolARModuleFBOW.pri)
 	
 unix {
     QMAKE_CXXFLAGS += -Wignored-qualifiers
@@ -71,3 +70,8 @@ xpcf_xml_files.files=$$files($${PWD}/xpcf*.xml)
 INSTALLS += header_files
 INSTALLS += xpcf_xml_files
 
+OTHER_FILES += \
+    packagedependencies.txt
+
+#NOTE : Must be placed at the end of the .pro
+include ($$shell_quote($$shell_path($$(REMAKEN_RULES_ROOT)/qmake/remaken_install_target.pri)))) # Shell_quote & shell_path required for visual on windows
