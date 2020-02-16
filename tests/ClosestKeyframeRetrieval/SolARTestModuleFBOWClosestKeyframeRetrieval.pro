@@ -1,14 +1,14 @@
 TARGET = SolARFBOWClosestKeyframeRetrieval
 VERSION=0.7.0
 
-CONFIG += c++11
+CONFIG += c++1z
 CONFIG -= qt
 CONFIG += console
 
 DEFINES += MYVERSION=$${VERSION}
 
 CONFIG(debug,debug|release) {
-	TARGETDEPLOYDIR = $${PWD}/../bin/Debug
+    TARGETDEPLOYDIR = $${PWD}/../bin/Debug
     DEFINES += _DEBUG=1
     DEFINES += DEBUG=1
 }
