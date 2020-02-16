@@ -52,13 +52,10 @@ int main(int argc, char **argv) {
         /* this is needed in dynamic mode */
         SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-        std::string configxml = std::string("SolARFBOWClosestKeyframeRetrieval_conf.xml");
-        if (argc == 2)
-            configxml = std::string(argv[1]);
-        if (xpcfComponentManager->load(configxml.c_str()) != org::bcom::xpcf::_SUCCESS)
+        if(xpcfComponentManager->load("SolARFBOWClosestKeyframeRetrieval_conf.xml")!=org::bcom::xpcf::_SUCCESS)
         {
-            LOG_ERROR("Failed to load the configuration file {}", configxml.c_str())
-                return -1;
+            LOG_ERROR("Failed to load the configuration file SolARFBOWClosestKeyframeRetrieval_conf.xml")
+            return -1;
         }
 
         // declare and create components
