@@ -21,6 +21,12 @@
 
 namespace SolAR {
 namespace MODULES {
+/**
+ * @namespace 28b89d39-41bd-451d-b19e-d25a3d7c5797FBOW
+ * @brief <B>Provides an image retrieval component based on Fast Bag Of Words library: https://github.com/rmsalinas/fbow </B>
+ * <TT>UUID: b81f0b90-bdbc-11e8-a355-529269fb1459</TT>
+ *
+ */
 namespace FBOW {
 class SolARKeyframeRetrieverFBOW;
 }
