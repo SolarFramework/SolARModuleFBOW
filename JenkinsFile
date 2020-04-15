@@ -13,45 +13,28 @@ pipeline {
     triggers { pollSCM('*/10 * * * *') } 
     stages {
 
-        stage("Get Binaries") {
-            when {
-                expression { params.RELEASE == false }
-            }                   
-            steps {
-                script {
-                     BRANCH = BRANCH_NAME.replace('/','_')
-                }
-                withCredentials([usernamePassword(credentialsId: 'bc6e150e-ede8-4e35-8af4-0f037edee8ac', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                     getBinaries(BRANCH,USERNAME,PASSWORD)
-                }
-            }
-        }
-
-       stage("Get Third Parties Release") {
-             when {
-                expression { params.RELEASE == true }
-             }               
-             steps {
-                getThirdParties('1.0.0')
-             }
-        }
-
-
         stage("Get Third Parties") {
-            when {
-                expression { params.RELEASE == false }
-            }                   
-            steps {
-                installDependency('fbowSolAR','0.0.1')
-                installDependency('opencv','3.4.3')
-            }
-        }            
+             steps {
+                 script {
+                     BRANCH = BRANCH_NAME.replace('/','_')
+                     version = sh (
+                        script: "cat *.pro  | grep VERSION | head -1 | cut -d '=' -f 2",
+                        returnStdout: true
+                     )
+                     version = version.replaceAll("[\r|\n]","")
+                 }
+                 withCredentials([string(credentialsId: 'artifactoryApiKey', variable: 'apiKey')]) {
+                    installRemaken(params.RELEASE,BRANCH,apiKey)
+                 }
+             }
+        }         
 
         stage("Build") {
             steps {
                 withEnv(['REMAKEN_RULES_ROOT=/home/jenkins/.remaken/rules/']) {
                     sh "qmake SolARModuleFBOW.pro"
                     sh "make"
+                    sh "make install"
                 }
             }
         }
@@ -69,34 +52,31 @@ pipeline {
              }
         }          
 
-        stage("Share Binaries") {
-            when {
-                expression { params.RELEASE == false }
-            }                   
+        stage("Generate artifacts") {
             steps {
                 script {
-                     sh "make install"
-                     BRANCH = BRANCH.replace('/','_')
-                }
-                withCredentials([usernamePassword(credentialsId: 'bc6e150e-ede8-4e35-8af4-0f037edee8ac', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                     shareBinaries(BRANCH,USERNAME,PASSWORD)
+                     prepareRelease("SolARBuild","linux-gcc","SolARModuleFBOW")                
                 }
             }
-        }     
+        }  
+
+        // Trigger only if not a RELEASE
+        stage("Upload to Artifactory") {
+            when {
+                expression { params.RELEASE == false }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'bc6e150e-ede8-4e35-8af4-0f037edee8ac', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                    uploadArchive(BRANCH,"SolARModuleFBOW/${version}/linux","${WORKSPACE}/artifactory/x86_64_shared_release/SolARModuleFBOW_${version}_x86_64_shared_release.zip",USERNAME,PASSWORD)
+                }
+            }
+        }
 
         stage("Release") {
             when {
                 expression { params.RELEASE == true }
             }
-            steps {
-                script {
-                    version = sh (
-                        script: "cat *.pro  | grep VERSION | head -1 | cut -d '=' -f 2",
-                        returnStdout: true
-                    )
-                    version = version.replace("\n","")
-                }                
-                prepareRelease("SolARBuild","linux-gcc","SolARModuleFBOW")                
+            steps {     
                 withCredentials([string(credentialsId: 'github-token', variable: 'token')]) {
                     release("SolARModuleFBOW","SolARModuleFBOW/${version}/linux","SolARModuleFBOW Version ${version} for Linux","${WORKSPACE}/artifactory/x86_64_shared_release/SolARModuleFBOW_${version}_x86_64_shared_release.zip ${WORKSPACE}/artifactory/x86_64_shared_debug/SolARModuleFBOW_${version}_x86_64_shared_debug.zip",token);
                 }
