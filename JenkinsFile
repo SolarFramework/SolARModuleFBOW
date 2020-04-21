@@ -10,6 +10,10 @@ pipeline {
             defaultValue: false,
             description: 'Create a Release')                
     }
+    environment {
+        PATH = "/home/.linuxbrew/bin:$PATH"
+        LD_LIBRARY_PATH = "/home/.linuxbrew/Cellar/python@3.8/3.8.2_1/lib:$LD_LIBRARY_PATH"
+    }    
     triggers { pollSCM('*/10 * * * *') } 
     stages {
 
