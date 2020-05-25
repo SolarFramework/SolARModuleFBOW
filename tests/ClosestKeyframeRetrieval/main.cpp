@@ -139,6 +139,10 @@ int main(int argc, char **argv) {
         keyframe2 = xpcf::utils::make_shared<Keyframe>(keypoints2, descriptors2, image2);
         keyframe3 = xpcf::utils::make_shared<Keyframe>(keypoints3, descriptors3, image3);
 
+		keyframe1->setId(0);
+		keyframe2->setId(1);
+		keyframe3->setId(2);
+
         // these keyframes are registred in the keyframe retriever for relocalisation
         kfRetriever->addKeyframe(keyframe1);
         kfRetriever->addKeyframe(keyframe2);
@@ -148,17 +152,17 @@ int main(int argc, char **argv) {
 
         // with test image 4 the retriever should return keyFrame3 in top retrieved keyframes
 
-        std::vector <SRef<Keyframe>> ret_keyframes;
+        std::vector <uint32_t> ret_keyframes;
 
         SRef<Frame> frame4=xpcf::utils::make_shared<Frame>(keypoints4, descriptors4, image4);
-        if (kfRetriever->retrieve(frame4, ret_keyframes) == FrameworkReturnCode::_SUCCESS) {
-            LOG_INFO("Retrieval Success");
-            if(ret_keyframes[0]->m_idx==2){
-                LOG_INFO("image 4 test is OK ")
-            }
-            else{
-                LOG_INFO("image 4 test is KO ")
-            }
+		if (kfRetriever->retrieve(frame4, ret_keyframes) == FrameworkReturnCode::_SUCCESS) {
+			LOG_INFO("Retrieval Success");
+			if (ret_keyframes[0] == 2) {
+				LOG_INFO("image 4 test is OK ")
+			}
+			else {
+				LOG_INFO("image 4 test is KO ")
+			}
         }
         else
             LOG_INFO("image 4 test is KO ")

@@ -45,40 +45,54 @@ public:
     org::bcom::xpcf::XPCFErrorCode onConfigured() override final;
     void unloadComponent () override final;
 
-    /// @brief Add a keyframe to the bag of words
-    /// @param[in] keyframe: the keyframe to add to the bag of words
-    /// @return FrameworkReturnCode::_SUCCESS if the keyfram adding succeed, else FrameworkReturnCode::_ERROR_
-    FrameworkReturnCode addKeyframe(SRef<Keyframe> keyframe) override;
+	/// @brief Add a keyframe to the retrieval model
+	/// @param[in] keyframe: the keyframe to add to the retrieval model
+	/// @return FrameworkReturnCode::_SUCCESS if the keyfram adding succeed, else FrameworkReturnCode::_ERROR_
+	FrameworkReturnCode addKeyframe(const SRef<Keyframe>& keyframe) override;
 
+	/// @brief Suppress a keyframe from the retrieval model
+	/// @param[in] keyframe_id: the keyframe to supress from the retrieval model
+	/// @return FrameworkReturnCode::_SUCCESS if the keyfram adding succeed, else FrameworkReturnCode::_ERROR_
+	FrameworkReturnCode suppressKeyframe(uint32_t keyframe_id) override;
 
-    /// @brief Retrieve a set of keyframes close to the frame pass in input.
-    /// @param[in] frame: the frame for which we want to retrieve close keyframes.
-    /// @param[out] keyframes: a set of keyframe which are close to the frame pass in input
-    /// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-    FrameworkReturnCode retrieve(const SRef<Frame> frame, std::vector<SRef<Keyframe>>& keyframes) override;
 
 	/// @brief Retrieve a set of keyframes close to the frame pass in input.
 	/// @param[in] frame: the frame for which we want to retrieve close keyframes.
-	/// @param[in] index: a set includes index of keyframe candidates
-	/// @param[out] keyframes: a set of keyframe which are close to the frame pass in input
+	/// @param[out] retKeyframes_id: a set of keyframe ids which are close to the frame pass in input
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-	FrameworkReturnCode retrieve(const SRef<Frame> frame, std::set<unsigned int> &idxKfCandidates, std::vector<SRef<Keyframe>> & keyframes) override;
+	FrameworkReturnCode retrieve(const SRef<Frame>& frame, std::vector<uint32_t> &retKeyframes_id) override;
+
+	/// @brief Retrieve a set of keyframes close to the frame pass in input.
+	/// @param[in] frame: the frame for which we want to retrieve close keyframes.
+	/// @param[in] canKeyframes_id: a set includes id of keyframe candidates
+	/// @param[out] retKeyframes_id: a set of keyframe ids which are close to the frame pass in input
+	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
+	FrameworkReturnCode retrieve(const SRef<Frame>& frame, std::set<unsigned int> &canKeyframes_id, std::vector<uint32_t> & retKeyframes_id) override;
+
+	/// @brief This method allows to save the keyframe feature to the external file
+	/// @param[out] the file name
+	/// @return FrameworkReturnCode::_SUCCESS_ if the suppression succeed, else FrameworkReturnCode::_ERROR.
+	FrameworkReturnCode saveToFile(std::string file) override;
+
+	/// @brief This method allows to load the keyframe feature from the external file
+	/// @param[in] the file name
+	/// @return FrameworkReturnCode::_SUCCESS_ if the suppression succeed, else FrameworkReturnCode::_ERROR.
+	FrameworkReturnCode loadFromFile(std::string file) override;
 
 	/// @brief Match a frame with a keyframe
-	/// @param[in] frame: the frame to match.
-	/// @param[in] index: index of keyframe
+	/// @param[in] frame: the frame to match
+	/// @param[in] keyframe: keyframe to match
 	/// @param[out] matches: a set of matches between frame and keyframe
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-	FrameworkReturnCode match(const SRef<Frame> frame, int index, std::vector<DescriptorMatch> &matches) override;
+	virtual FrameworkReturnCode match(const SRef<Frame>& frame, const SRef<Keyframe>& keyframe, std::vector<DescriptorMatch> &matches) override;
 
 	/// @brief Match a set of descriptors with a keyframe
 	/// @param[in] indexDescriptors: index of descriptors to match.
 	/// @param[in] descriptors: a descriptor buffer contains all descriptors
-	/// @param[in] indexKeyframe: index of keyframe
+	/// @param[in] keyframe: keyframe to match
 	/// @param[out] matches: a set of matches between frame and keyframe
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-	FrameworkReturnCode match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> &descriptors, int indexKeyframe, std::vector<DescriptorMatch> &matches) override;
-
+	virtual FrameworkReturnCode match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> &descriptors, const SRef<Keyframe> &keyframe, std::vector<DescriptorMatch> &matches) override;
 private:
 	/// @brief Match a feature to a set of features
 	/// @param[in] feature1: a feature
@@ -99,20 +113,17 @@ private:
     /// @brief a vocabulary of visual words
     fbow::Vocabulary        m_VOC;	
 
-	/// @brief a list BoW descriptor of keyframes
-	std::vector<fbow::fBow> m_list_KFBoW;
+	/// @brief a map BoW descriptor of keyframes
+	std::map<uint32_t, fbow::fBow> m_list_KFBoW;
 
 	/// @brief level stored for BoW2
 	int	m_level				= 1;
 
-	/// @brief a list BoW2 descriptor of keyframes which save index of feature at nodes of the expected level
-	std::vector<fbow::fBow2> m_list_KFBoW2;
+	/// @brief a map BoW2 descriptor of keyframes which save index of feature at nodes of the expected level
+	std::map<uint32_t, fbow::fBow2> m_list_KFBoW2;
 
-	/// @brief a list of keyframes
-	std::vector<SRef<Keyframe>> m_list_keyframes;
-
-	/// @brief a list of opencv descriptor
-	std::vector<cv::Mat> m_list_des;
+	/// @brief For each node at level m_level stores a set of frames that contain it
+	std::map<uint32_t, std::set<uint32_t>> m_invertedIndexKfs;
 
 	/// @brief distance ratio used to keep good matches.
 	float m_distanceRatio = 0.7;

@@ -60,27 +60,47 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
     return xpcf::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(SRef<Keyframe> keyframe)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>& keyframe)
 {
-	// convert desc of keyframe to Mat opencv
+	// Convert desc of keyframe to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = keyframe->getDescriptors();
 	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
 
-	// get bow desc corresponding to keyframe desc
+	// Get bow desc corresponding to keyframe desc
 	fbow::fBow v_bow;
 	fbow::fBow2 v_bow2;
 	m_VOC.transform(desc_OpenCV, m_level, v_bow, v_bow2);
 
-	// add bow desc and keyfram to the lists
-	m_list_KFBoW.push_back(v_bow);
-	m_list_KFBoW2.push_back(v_bow2);
-	m_list_keyframes.push_back(keyframe);
-	m_list_des.push_back(desc_OpenCV);
+	// Add bow desc to the database
+	m_list_KFBoW[keyframe->getId()] = v_bow;
+	m_list_KFBoW2[keyframe->getId()] = v_bow2;
+
+	// Add inverted index to the database
+	for (auto const &it : v_bow2)
+		m_invertedIndexKfs[it.first].insert(keyframe->getId());
 
     return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, std::vector<SRef<Keyframe>>& keyframes)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::suppressKeyframe(uint32_t keyframe_id)
+{
+	auto it_KFBoW2 = m_list_KFBoW2.find(keyframe_id);
+	if (it_KFBoW2 == m_list_KFBoW2.end())
+		return FrameworkReturnCode::_ERROR_;
+
+	// remove inverted index
+	const fbow::fBow2 &v_bow2 = it_KFBoW2->second;
+	for (auto const &it : v_bow2)
+		m_invertedIndexKfs[it.first].erase(keyframe_id);
+
+	// remove keyframe descriptors
+	m_list_KFBoW.erase(keyframe_id);
+	m_list_KFBoW2.erase(keyframe_id);	
+
+	return FrameworkReturnCode::_SUCCESS;
+}
+
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& frame, std::vector<uint32_t> &retKeyframes_id)
 {
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
@@ -88,31 +108,54 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame
 		return FrameworkReturnCode::_ERROR_;
 	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
 
-	// get bow desc corresponding to keyframe desc
+	// calculate bow desc corresponding to the query frame
 	fbow::fBow v_bow;
-	v_bow = m_VOC.transform(desc_OpenCV);	
+	fbow::fBow2 v_bow2;
+	m_VOC.transform(desc_OpenCV, m_level, v_bow, v_bow2);
+
+	// get candidates that have at least 1 common word with the query frame
+	std::map<uint32_t, int> scoreCandidates;
+	for (auto const &it : v_bow2) {
+		const std::set<uint32_t> &kfs_id = m_invertedIndexKfs[it.first];
+		for (auto const &it_kf : kfs_id)
+			scoreCandidates[it_kf]++;
+	}
+	if (scoreCandidates.size() == 0)
+		return FrameworkReturnCode::_ERROR_;
+
+	// find max common words
+	int maxScore = 0;
+	for (auto const &it : scoreCandidates)
+		if (it.second > maxScore)
+			maxScore = it.second;
+	int minScore = 0.5 * maxScore;
+
+	// get best candidates
+	std::vector<uint32_t> bestCandidates;
+	for (auto const &it : scoreCandidates)
+		if (it.second > minScore)
+			bestCandidates.push_back(it.first);
 
 	// find nearest keyframes
 	std::multimap<double, int> sortDisKeyframes;
-	for (int i = 0; i < m_list_KFBoW.size(); ++i) {
-		double score = m_list_KFBoW[i].score(m_list_KFBoW[i], v_bow);
+	for (auto const &it : bestCandidates) {
+		const fbow::fBow & kfBoW = m_list_KFBoW[it];
+		double score = kfBoW.score(kfBoW, v_bow);
 		if (score > m_threshold)
-			sortDisKeyframes.insert(std::pair<double, int>(-score, i));
+			sortDisKeyframes.insert(std::pair<double, int>(-score, it));
 	}
 
-	for (auto it = sortDisKeyframes.begin(); it != sortDisKeyframes.end(); it++) {
-		keyframes.push_back(m_list_keyframes[it->second]);
-		if (keyframes.size() >= 3)
-			break;
-	}
-
-	if (keyframes.size() == 0)
+	if (sortDisKeyframes.size() == 0)
 		return FrameworkReturnCode::_ERROR_;
+
+	for (auto const &it : sortDisKeyframes) {
+		retKeyframes_id.push_back(it.second);
+	}	
 
     return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, std::set<unsigned int> &idxKfCandidates, std::vector<SRef<Keyframe>> & keyframes)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& frame, std::set<unsigned int> &canKeyframes_id, std::vector<uint32_t> & retKeyframes_id)
 {
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
@@ -120,27 +163,41 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame
 		return FrameworkReturnCode::_ERROR_;
 	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
 
-	// get bow desc corresponding to keyframe desc
+	// calculate bow desc corresponding to the query frame
 	fbow::fBow v_bow;
 	v_bow = m_VOC.transform(desc_OpenCV);
 
 	// find nearest keyframes
 	std::multimap<double, int> sortDisKeyframes;
-	for (auto it = idxKfCandidates.begin(); it != idxKfCandidates.end(); it++) {
-		double score = m_list_KFBoW[*it].score(m_list_KFBoW[*it], v_bow);
-		if (score > m_threshold)
-			sortDisKeyframes.insert(std::pair<double, int>(-score, *it));
+	for (auto const &it : canKeyframes_id) {
+		auto it_keyframe = m_list_KFBoW.find(it);
+		if (it_keyframe != m_list_KFBoW.end()) {
+			const fbow::fBow& kfBoW = it_keyframe->second;
+			double score = kfBoW.score(kfBoW, v_bow);
+			if (score > m_threshold)
+				sortDisKeyframes.insert(std::pair<double, int>(-score, it));
+		}
 	}
 
-	for (auto it = sortDisKeyframes.begin(); it != sortDisKeyframes.end(); it++) {
-		keyframes.push_back(m_list_keyframes[it->second]);
-		if (keyframes.size() >= 3)
-			break;
-	}
-
-	if (keyframes.size() == 0)
+	if (sortDisKeyframes.size() == 0)
 		return FrameworkReturnCode::_ERROR_;
 
+	for (auto const &it : sortDisKeyframes) {
+		retKeyframes_id.push_back(it.second);
+	}	
+
+	return FrameworkReturnCode::_SUCCESS;
+}
+
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(std::string file)
+{
+	LOG_WARNING("Coming soon!");
+	return FrameworkReturnCode::_SUCCESS;
+}
+
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::loadFromFile(std::string file)
+{
+	LOG_WARNING("Coming soon!");
 	return FrameworkReturnCode::_SUCCESS;
 }
 
@@ -170,7 +227,7 @@ void SolARKeyframeRetrieverFBOW::findBestMatches(const cv::Mat &feature1, const 
 		bestIdx = -1;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame> frame, int index, std::vector<DescriptorMatch>& matches)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame>& frame, const SRef<Keyframe>& keyframe, std::vector<DescriptorMatch> &matches)
 {
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> descriptors = frame->getDescriptors();
@@ -178,8 +235,17 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame> frame, i
 		return FrameworkReturnCode::_ERROR_;
 	cv::Mat cvDescriptors(descriptors->getNbDescriptors(), descriptors->getNbElements(), m_VOC.getDescType(), descriptors->data());
 
-	const cv::Mat &kfDescriptors = m_list_des[index];
-	const fbow::fBow2 &kfFBow2 = m_list_KFBoW2[index];
+	// convert keyframe desc to Mat opencv
+	SRef<DescriptorBuffer> descriptors_kf = keyframe->getDescriptors();
+	if (descriptors_kf->getNbDescriptors() == 0)
+		return FrameworkReturnCode::_ERROR_;
+	cv::Mat cvDescriptors_kf(descriptors_kf->getNbDescriptors(), descriptors_kf->getNbElements(), m_VOC.getDescType(), descriptors_kf->data());
+
+	// get fbow2 desc of keyframe
+	auto itBoW2 = m_list_KFBoW2.find(keyframe->getId());
+	if (itBoW2 == m_list_KFBoW2.end())
+		return FrameworkReturnCode::_ERROR_;
+	const fbow::fBow2 &kfFBow2 = itBoW2->second;
 
 	for (int i = 0; i < cvDescriptors.rows; i++) {
 		const cv::Mat cvDescriptor = cvDescriptors.row(i);
@@ -192,7 +258,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame> frame, i
 		// find the best match
 		int bestIdx;
 		float bestDist;
-		findBestMatches(cvDescriptor, kfDescriptors, candidates, bestIdx, bestDist);
+		findBestMatches(cvDescriptor, cvDescriptors_kf, candidates, bestIdx, bestDist);
 		if (bestIdx != -1)
 			matches.push_back(DescriptorMatch(i, bestIdx, bestDist));
 	}
@@ -200,15 +266,24 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame> frame, i
 	return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int>& indexDescriptors, const SRef<DescriptorBuffer> & descriptors, int indexKeyframe, std::vector<DescriptorMatch>& matches)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> &descriptors, const SRef<Keyframe> &keyframe, std::vector<DescriptorMatch> &matches)
 {
 	// convert frame desc to Mat opencv
 	if (descriptors->getNbDescriptors() == 0)
 		return FrameworkReturnCode::_ERROR_;
 	cv::Mat cvDescriptors(descriptors->getNbDescriptors(), descriptors->getNbElements(), m_VOC.getDescType(), descriptors->data());
 
-	const cv::Mat &kfDescriptors = m_list_des[indexKeyframe];
-	const fbow::fBow2 &kfFBow2 = m_list_KFBoW2[indexKeyframe];
+	// convert keyframe desc to Mat opencv
+	SRef<DescriptorBuffer> descriptors_kf = keyframe->getDescriptors();
+	if (descriptors_kf->getNbDescriptors() == 0)
+		return FrameworkReturnCode::_ERROR_;
+	cv::Mat cvDescriptors_kf(descriptors_kf->getNbDescriptors(), descriptors_kf->getNbElements(), m_VOC.getDescType(), descriptors_kf->data());
+
+	// get fbow2 desc of keyframe
+	auto itBoW2 = m_list_KFBoW2.find(keyframe->getId());
+	if (itBoW2 == m_list_KFBoW2.end())
+		return FrameworkReturnCode::_ERROR_;
+	const fbow::fBow2 &kfFBow2 = itBoW2->second;
 
 	for (auto &it_des: indexDescriptors) {
 		const cv::Mat cvDescriptor = cvDescriptors.row(it_des);
@@ -221,7 +296,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int>& in
 		// find the best match
 		int bestIdx;
 		float bestDist;
-		findBestMatches(cvDescriptor, kfDescriptors, candidates, bestIdx, bestDist);
+		findBestMatches(cvDescriptor, cvDescriptors_kf, candidates, bestIdx, bestDist);
 		if (bestIdx != -1)
 			matches.push_back(DescriptorMatch(it_des, bestIdx, bestDist));
 	}
