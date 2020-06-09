@@ -197,6 +197,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(std::string file)
 	oa << m_list_KFBoW;
 	oa << m_list_KFBoW2;
 	oa << m_invertedIndexKfs;
+	ofs.close();
 	return FrameworkReturnCode::_SUCCESS;
 }
 
@@ -210,6 +211,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::loadFromFile(std::string file)
 	ia >> m_list_KFBoW;
 	ia >> m_list_KFBoW2;
 	ia >> m_invertedIndexKfs;
+	ifs.close();
 	return FrameworkReturnCode::_SUCCESS;
 }
 
