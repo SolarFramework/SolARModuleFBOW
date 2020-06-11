@@ -191,8 +191,8 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(std::string file)
 {
-	std::ofstream ofs(file);
-	boost::archive::text_oarchive oa(ofs);
+	std::ofstream ofs(file, std::ios::binary);
+	boost::archive::binary_oarchive oa(ofs);
 	oa << m_level;
 	oa << m_list_KFBoW;
 	oa << m_list_KFBoW2;
@@ -203,10 +203,10 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(std::string file)
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::loadFromFile(std::string file)
 {
-	std::ifstream ifs(file);
+	std::ifstream ifs(file, std::ios::binary);
 	if (!ifs.is_open())
 		return FrameworkReturnCode::_ERROR_;
-	boost::archive::text_iarchive ia(ifs);
+	boost::archive::binary_iarchive ia(ifs);
 	ia >> m_level;
 	ia >> m_list_KFBoW;
 	ia >> m_list_KFBoW2;
