@@ -22,11 +22,6 @@
 #include <vector>
 #include <fstream>
 #include <core/SerializationDefinitions.h>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/set.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
 
 #include "fbow.h"
 
