@@ -83,24 +83,63 @@ int main(int argc, char **argv) {
         // KeyframeRetriever component to relocalize
         auto kfRetriever = xpcfComponentManager->resolve<reloc::IKeyframeRetriever>();
 
-
         SRef<Image> image1,image2,image3,image4,image5;
+		std::vector<Keypoint> keypoints1, keypoints2, keypoints3, keypoints4, keypoints5;
+		SRef<DescriptorBuffer>      descriptors1, descriptors2, descriptors3, descriptors4, descriptors5;
 
-        if (imageLoader1->getImage(image1) != FrameworkReturnCode::_SUCCESS)
-        {
-            LOG_ERROR("Cannot load image 1 with path {}", imageLoader1->bindTo<xpcf::IConfigurable>()->getProperty("pathFile")->getStringValue());
-            return -1;
-        }
-        if (imageLoader2->getImage(image2) != FrameworkReturnCode::_SUCCESS)
-        {
-            LOG_ERROR("Cannot load image 2 with path {}", imageLoader2->bindTo<xpcf::IConfigurable>()->getProperty("pathFile")->getStringValue());
-            return -1;
-        }
-        if (imageLoader3->getImage(image3) != FrameworkReturnCode::_SUCCESS)
-        {
-            LOG_ERROR("Cannot load image 1 with path {}", imageLoader3->bindTo<xpcf::IConfigurable>()->getProperty("pathFile")->getStringValue());
-            return -1;
-        }
+		// create a covisibility graph
+		std::string fileName = "keyframes_retriever.txt";
+		LOG_INFO("Load the keyframes feature from {}", fileName);
+		if (kfRetriever->loadFromFile(fileName) == FrameworkReturnCode::_ERROR_) {
+			LOG_INFO("This file doesn't exist. Create a new keyframe database");
+			if (imageLoader1->getImage(image1) != FrameworkReturnCode::_SUCCESS)
+			{
+				LOG_ERROR("Cannot load image 1 with path {}", imageLoader1->bindTo<xpcf::IConfigurable>()->getProperty("pathFile")->getStringValue());
+				return -1;
+			}
+			if (imageLoader2->getImage(image2) != FrameworkReturnCode::_SUCCESS)
+			{
+				LOG_ERROR("Cannot load image 2 with path {}", imageLoader2->bindTo<xpcf::IConfigurable>()->getProperty("pathFile")->getStringValue());
+				return -1;
+			}
+			if (imageLoader3->getImage(image3) != FrameworkReturnCode::_SUCCESS)
+			{
+				LOG_ERROR("Cannot load image 1 with path {}", imageLoader3->bindTo<xpcf::IConfigurable>()->getProperty("pathFile")->getStringValue());
+				return -1;
+			}
+
+			keypointsDetector->detect(image1, keypoints1);
+			keypointsDetector->detect(image2, keypoints2);
+			keypointsDetector->detect(image3, keypoints3);
+
+			descriptorExtractor->extract(image1, keypoints1, descriptors1);
+			descriptorExtractor->extract(image2, keypoints2, descriptors2);
+			descriptorExtractor->extract(image3, keypoints3, descriptors3);
+
+			// the tree first images are converted to keyframes
+			SRef<Keyframe> keyframe1, keyframe2, keyframe3;
+
+			keyframe1 = xpcf::utils::make_shared<Keyframe>(keypoints1, descriptors1, image1);
+			keyframe2 = xpcf::utils::make_shared<Keyframe>(keypoints2, descriptors2, image2);
+			keyframe3 = xpcf::utils::make_shared<Keyframe>(keypoints3, descriptors3, image3);
+
+			keyframe1->setId(0);
+			keyframe2->setId(1);
+			keyframe3->setId(2);
+
+			// these keyframes are registred in the keyframe retriever for relocalisation
+			kfRetriever->addKeyframe(keyframe1);
+			kfRetriever->addKeyframe(keyframe2);
+			kfRetriever->addKeyframe(keyframe3);
+
+			kfRetriever->saveToFile(fileName);
+		}
+		else {
+			LOG_INFO("Load done");
+		}
+
+        
+		// using image 4, 5 for testing
         if (imageLoader4->getImage(image4) != FrameworkReturnCode::_SUCCESS)
         {
             LOG_ERROR("Cannot load image 4 with path {}", imageLoader4->bindTo<xpcf::IConfigurable>()->getProperty("pathFile")->getStringValue());
@@ -112,61 +151,30 @@ int main(int argc, char **argv) {
             return -1;
         }
 
-
-        //keypoints and corresponding descriptors are extracted
-        std::vector<Keypoint> keypoints1,keypoints2,keypoints3,keypoints4,keypoints5;
-
-        keypointsDetector->detect(image1, keypoints1);
-        keypointsDetector->detect(image2, keypoints2);
-        keypointsDetector->detect(image3, keypoints3);
         keypointsDetector->detect(image4, keypoints4);
         keypointsDetector->detect(image5, keypoints5);
-
-
-        SRef<DescriptorBuffer>      descriptors1,descriptors2,descriptors3,descriptors4,descriptors5;
-
-        descriptorExtractor->extract(image1, keypoints1, descriptors1);
-        descriptorExtractor->extract(image2, keypoints2, descriptors2);
-        descriptorExtractor->extract(image3, keypoints3, descriptors3);
+     
         descriptorExtractor->extract(image4, keypoints4, descriptors4);
         descriptorExtractor->extract(image5, keypoints5, descriptors5);
 
-
-        // the tree first images are converted to keyframes
-        SRef<Keyframe> keyframe1,keyframe2,keyframe3;
-
-        keyframe1 = xpcf::utils::make_shared<Keyframe>(keypoints1, descriptors1, image1);
-        keyframe2 = xpcf::utils::make_shared<Keyframe>(keypoints2, descriptors2, image2);
-        keyframe3 = xpcf::utils::make_shared<Keyframe>(keypoints3, descriptors3, image3);
-
-        // these keyframes are registred in the keyframe retriever for relocalisation
-        kfRetriever->addKeyframe(keyframe1);
-        kfRetriever->addKeyframe(keyframe2);
-        kfRetriever->addKeyframe(keyframe3);
-
-        // image 4 and 5 are used to test the kf retriever
-
         // with test image 4 the retriever should return keyFrame3 in top retrieved keyframes
-
-        std::vector <SRef<Keyframe>> ret_keyframes;
-
-        SRef<Frame> frame4=xpcf::utils::make_shared<Frame>(keypoints4, descriptors4, image4);
-        if (kfRetriever->retrieve(frame4, ret_keyframes) == FrameworkReturnCode::_SUCCESS) {
-            LOG_INFO("Retrieval Success");
-            if(ret_keyframes[0]->m_idx==2){
-                LOG_INFO("image 4 test is OK ")
-            }
-            else{
-                LOG_INFO("image 4 test is KO ")
-            }
+        std::vector <uint32_t> ret_keyframes;
+        SRef<Frame> frame4 = xpcf::utils::make_shared<Frame>(keypoints4, descriptors4, image4);
+		if (kfRetriever->retrieve(frame4, ret_keyframes) == FrameworkReturnCode::_SUCCESS) {
+			LOG_INFO("Retrieval Success");
+			if (ret_keyframes[0] == 2) {
+				LOG_INFO("image 4 test is OK ")
+			}
+			else {
+				LOG_INFO("image 4 test is KO ")
+			}
         }
         else
             LOG_INFO("image 4 test is KO ")
 
 
         // with test image 5 the retriever should not return any keyframe
-
-        SRef<Frame> frame5=xpcf::utils::make_shared<Frame>(keypoints5, descriptors5, image5);
+        SRef<Frame> frame5 = xpcf::utils::make_shared<Frame>(keypoints5, descriptors5, image5);
         ret_keyframes.clear();
         if (kfRetriever->retrieve(frame5, ret_keyframes) != FrameworkReturnCode::_SUCCESS) {
             LOG_INFO("image 5 test is OK ")

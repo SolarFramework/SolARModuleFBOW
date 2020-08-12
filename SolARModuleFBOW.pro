@@ -7,7 +7,7 @@ INSTALLSUBDIR = SolARBuild
 TARGET = SolARModuleFBOW
 
 FRAMEWORK = $$TARGET
-VERSION=0.8.0
+VERSION=0.8.1
 
 DEFINES += MYVERSION=$${VERSION}
 DEFINES += TEMPLATE_LIBRARY
@@ -25,7 +25,7 @@ CONFIG(release,debug|release) {
     DEFINES += NDEBUG=1
 }
 
-DEPENDENCIESCONFIG = shared recursive install_recurse
+DEPENDENCIESCONFIG = shared install_recurse
 
 ## Configuration for Visual Studio to install binaries and dependencies. Work also for QT Creator by replacing QMAKE_INSTALL
 PROJECTCONFIG = QTVS
