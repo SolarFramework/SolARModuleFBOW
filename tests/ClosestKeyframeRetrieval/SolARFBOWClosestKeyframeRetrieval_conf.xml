@@ -21,21 +21,29 @@
 			<interface uuid="f60980ce-bdbd-11e8-a355-529269fb1459" name="IKeyframeRetriever" description="IKeyframeRetriever"/>
 		</component>
 	</module>   
-
+    <factory>
+        <bindings>
+            <bind name="frame_0001" interface="IImageLoader" to="SolARImageLoaderOpencv" properties="frame_0001_prop"/>
+            <bind name="frame_0002" interface="IImageLoader" to="SolARImageLoaderOpencv" properties="frame_0002_prop"/>
+            <bind name="frame_0003" interface="IImageLoader" to="SolARImageLoaderOpencv" properties="frame_0003_prop"/>
+            <bind name="frame_0004" interface="IImageLoader" to="SolARImageLoaderOpencv" properties="frame_0004_prop"/>
+            <bind name="frame_0005" interface="IImageLoader" to="SolARImageLoaderOpencv" properties="frame_0005_prop"/>
+        </bindings>
+    </factory>
     <properties>
-        <configure component="SolARImageLoaderOpencv" name="frame_0001">
+        <configure component="SolARImageLoaderOpencv" name="frame_0001_prop">
 			<property name="filePath" type="string" value="../../data/frame_0001.png"/>
 		</configure>
-        <configure component="SolARImageLoaderOpencv" name="frame_0002">
+        <configure component="SolARImageLoaderOpencv" name="frame_0002_prop">
 			<property name="filePath" type="string" value="../../data/frame_0002.png"/>
 		</configure>
-        <configure component="SolARImageLoaderOpencv" name="frame_0003">
+        <configure component="SolARImageLoaderOpencv" name="frame_0003_prop">
 			<property name="filePath" type="string" value="../../data/frame_0003.png"/>
 		</configure>
-        <configure component="SolARImageLoaderOpencv" name="frame_0004">
+        <configure component="SolARImageLoaderOpencv" name="frame_0004_prop">
 			<property name="filePath" type="string" value="../../data/frame_0004.png"/>
 		</configure>
-        <configure component="SolARImageLoaderOpencv" name="frame_0005">
+        <configure component="SolARImageLoaderOpencv" name="frame_0005_prop">
 			<property name="filePath" type="string" value="../../data/frame_0005.png"/>
 		</configure>
         <configure component="SolARKeypointDetectorOpencv">

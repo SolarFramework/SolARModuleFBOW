@@ -62,18 +62,13 @@ int main(int argc, char **argv) {
         LOG_INFO("<<<<<<<<<<<<<<<<<<  Start creating components");
 
         //load images used to create Reference keyFrames
-        auto imageLoader1 =xpcfComponentManager->resolve<image::IImageLoader>(); //<create<SolARImageLoaderOpencv>("frame_0001")->bindTo<image::IImageLoader>();
-        imageLoader1->bindTo<xpcf::IConfigurable>()->configure("SolARFBOWClosestKeyframeRetrieval_conf.xml", "frame_0001");
-        auto imageLoader2 =xpcfComponentManager->resolve<image::IImageLoader>();
-        imageLoader2->bindTo<xpcf::IConfigurable>()->configure("SolARFBOWClosestKeyframeRetrieval_conf.xml", "frame_0002");
-        auto imageLoader3 =xpcfComponentManager->resolve<image::IImageLoader>();
-        imageLoader3->bindTo<xpcf::IConfigurable>()->configure("SolARFBOWClosestKeyframeRetrieval_conf.xml", "frame_0003");
+        auto imageLoader1 =xpcfComponentManager->resolve<image::IImageLoader>("frame_0001");
+        auto imageLoader2 =xpcfComponentManager->resolve<image::IImageLoader>("frame_0002");
+        auto imageLoader3 =xpcfComponentManager->resolve<image::IImageLoader>("frame_0003");
 
          //load images used to retrieve the closest Reference keyframe
-        auto imageLoader4 =xpcfComponentManager->resolve<image::IImageLoader>();
-        imageLoader4->bindTo<xpcf::IConfigurable>()->configure("SolARFBOWClosestKeyframeRetrieval_conf.xml", "frame_0004");
-        auto imageLoader5 =xpcfComponentManager->resolve<image::IImageLoader>();
-        imageLoader5->bindTo<xpcf::IConfigurable>()->configure("SolARFBOWClosestKeyframeRetrieval_conf.xml", "frame_0005");
+        auto imageLoader4 =xpcfComponentManager->resolve<image::IImageLoader>("frame_0004");
+        auto imageLoader5 =xpcfComponentManager->resolve<image::IImageLoader>("frame_0005");
 
         // keypoints detector and descriptor extractor
         auto keypointsDetector = xpcfComponentManager->resolve<features::IKeypointDetector>();
