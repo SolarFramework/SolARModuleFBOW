@@ -1,1 +1,0 @@
-opencv|4.1.1|opencv|thirdParties@github|https://github.com/SolarFramework/binaries/releases/download
