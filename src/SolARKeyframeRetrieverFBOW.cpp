@@ -35,7 +35,7 @@ SolARKeyframeRetrieverFBOW::SolARKeyframeRetrieverFBOW():ConfigurableBase(xpcf::
     declareProperty("threshold", m_threshold);
     declareProperty("level", m_level);
 	declareProperty("matchingDistanceRatio", m_distanceRatio);
-	declareProperty("matchingDistanceMAX", m_distanceMax);
+	declareProperty("matchingDistanceMax", m_distanceMax);
 
    LOG_DEBUG("SolARKeyframeRetrieverFBOW constructor");
 
@@ -237,7 +237,7 @@ void SolARKeyframeRetrieverFBOW::findBestMatches(const cv::Mat &feature1, const 
 		}
 	}
 
-	if ((bestDist > m_distanceRatio * bestDist2) && (bestDist > m_distanceMax))
+	if ((bestDist > m_distanceRatio * bestDist2) || (bestDist > m_distanceMax))
 		bestIdx = -1;
 }
 
