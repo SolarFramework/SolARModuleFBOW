@@ -51,11 +51,13 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
     LOG_DEBUG(" SolARKeyframeRetrieverFBOW onConfigured");
 
     // Load a vocabulary from m_VOCpath
+	std::ifstream file(m_VOCPath);
+	if (!file.is_open())
+		LOG_ERROR(" SolARKeyframeRetrieverFBOW onConfigured: Cannot load the vocabulary from file");
+	file.close();
     m_VOC.readFromFile(m_VOCPath);
-    if (!m_VOC.isValid()){
-        LOG_DEBUG(" SolARKeyframeRetrieverFBOW onConfigured: Cannot load the vocabulary from file");
+    if (!m_VOC.isValid())
         return xpcf::_ERROR_INVALID_ARGUMENT;
-    }
 
     return xpcf::_SUCCESS;
 }
@@ -128,7 +130,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
 	for (auto const &it : scoreCandidates)
 		if (it.second > maxScore)
 			maxScore = it.second;
-	int minScore = 0.5 * maxScore;
+	int minScore = 0.3 * maxScore;
 
 	// get best candidates
 	std::vector<uint32_t> bestCandidates;
@@ -136,6 +138,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
 		if (it.second > minScore)
 			bestCandidates.push_back(it.first);
 
+	//LOG_INFO("bestCandidates: {}", bestCandidates.size());
 	// find nearest keyframes
 	std::multimap<double, int> sortDisKeyframes;
 	for (auto const &it : bestCandidates) {
