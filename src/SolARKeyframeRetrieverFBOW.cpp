@@ -130,7 +130,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
 	for (auto const &it : scoreCandidates)
 		if (it.second > maxScore)
 			maxScore = it.second;
-	int minScore = 0.3 * maxScore;
+	int minScore = 0.5 * maxScore;
 
 	// get best candidates
 	std::vector<uint32_t> bestCandidates;
@@ -138,7 +138,6 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
 		if (it.second > minScore)
 			bestCandidates.push_back(it.first);
 
-	//LOG_INFO("bestCandidates: {}", bestCandidates.size());
 	// find nearest keyframes
 	std::multimap<double, int> sortDisKeyframes;
 	for (auto const &it : bestCandidates) {
@@ -302,6 +301,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &in
 		return FrameworkReturnCode::_ERROR_;
 	const fbow::fBow2 &kfFBow2 = itBoW2->second;
 
+	std::vector<bool> checkMatches(keyframe->getKeypoints().size(), true);
 	for (auto &it_des: indexDescriptors) {
 		const cv::Mat cvDescriptor = cvDescriptors.row(it_des);
 		int node = m_VOC.transform(cvDescriptor, m_level);
@@ -314,8 +314,10 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &in
 		int bestIdx;
 		float bestDist;
 		findBestMatches(cvDescriptor, cvDescriptors_kf, candidates, bestIdx, bestDist);
-		if (bestIdx != -1)
+		if ((bestIdx != -1) && checkMatches[bestIdx]) {
 			matches.push_back(DescriptorMatch(it_des, bestIdx, bestDist));
+			checkMatches[bestIdx] = false;
+		}
 	}
 	return FrameworkReturnCode::_SUCCESS;
 }
