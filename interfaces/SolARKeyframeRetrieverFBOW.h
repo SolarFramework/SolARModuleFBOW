@@ -119,7 +119,7 @@ private:
 	std::map<uint32_t, fbow::fBow> m_list_KFBoW;
 
 	/// @brief level stored for BoW2
-	int	m_level				= 1;
+	int	m_level				= 3;
 
 	/// @brief a map BoW2 descriptor of keyframes which save index of feature at nodes of the expected level
 	std::map<uint32_t, fbow::fBow2> m_list_KFBoW2;

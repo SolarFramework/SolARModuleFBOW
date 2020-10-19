@@ -35,7 +35,7 @@ SolARKeyframeRetrieverFBOW::SolARKeyframeRetrieverFBOW():ConfigurableBase(xpcf::
     declareProperty("threshold", m_threshold);
     declareProperty("level", m_level);
 	declareProperty("matchingDistanceRatio", m_distanceRatio);
-	declareProperty("matchingDistanceMAX", m_distanceMax);
+	declareProperty("matchingDistanceMax", m_distanceMax);
 
    LOG_DEBUG("SolARKeyframeRetrieverFBOW constructor");
 
@@ -51,11 +51,13 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
     LOG_DEBUG(" SolARKeyframeRetrieverFBOW onConfigured");
 
     // Load a vocabulary from m_VOCpath
+	std::ifstream file(m_VOCPath);
+	if (!file.is_open())
+		LOG_ERROR(" SolARKeyframeRetrieverFBOW onConfigured: Cannot load the vocabulary from file");
+	file.close();
     m_VOC.readFromFile(m_VOCPath);
-    if (!m_VOC.isValid()){
-        LOG_DEBUG(" SolARKeyframeRetrieverFBOW onConfigured: Cannot load the vocabulary from file");
+    if (!m_VOC.isValid())
         return xpcf::_ERROR_INVALID_ARGUMENT;
-    }
 
     return xpcf::_SUCCESS;
 }
@@ -237,7 +239,7 @@ void SolARKeyframeRetrieverFBOW::findBestMatches(const cv::Mat &feature1, const 
 		}
 	}
 
-	if ((bestDist > m_distanceRatio * bestDist2) && (bestDist > m_distanceMax))
+	if ((bestDist > m_distanceRatio * bestDist2) || (bestDist > m_distanceMax))
 		bestIdx = -1;
 }
 
@@ -299,6 +301,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &in
 		return FrameworkReturnCode::_ERROR_;
 	const fbow::fBow2 &kfFBow2 = itBoW2->second;
 
+	std::vector<bool> checkMatches(keyframe->getKeypoints().size(), true);
 	for (auto &it_des: indexDescriptors) {
 		const cv::Mat cvDescriptor = cvDescriptors.row(it_des);
 		int node = m_VOC.transform(cvDescriptor, m_level);
@@ -311,8 +314,10 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &in
 		int bestIdx;
 		float bestDist;
 		findBestMatches(cvDescriptor, cvDescriptors_kf, candidates, bestIdx, bestDist);
-		if (bestIdx != -1)
+		if ((bestIdx != -1) && checkMatches[bestIdx]) {
 			matches.push_back(DescriptorMatch(it_des, bestIdx, bestDist));
+			checkMatches[bestIdx] = false;
+		}
 	}
 	return FrameworkReturnCode::_SUCCESS;
 }
