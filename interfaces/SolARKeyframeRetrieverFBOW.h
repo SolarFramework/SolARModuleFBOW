@@ -128,10 +128,10 @@ private:
 	std::map<uint32_t, std::set<uint32_t>> m_invertedIndexKfs;
 
 	/// @brief distance ratio used to keep good matches.
-	float m_distanceRatio = 0.7;
+    float m_distanceRatio = 0.7f;
 
 	/// @brief distance max used to keep good matches.
-	float m_distanceMax = 100;
+    float m_distanceMax = 100.f;
 };
 
 }
