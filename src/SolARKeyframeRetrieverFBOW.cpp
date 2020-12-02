@@ -57,9 +57,9 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
 	file.close();
     m_VOC.readFromFile(m_VOCPath);
     if (!m_VOC.isValid())
-        return xpcf::_ERROR_INVALID_ARGUMENT;
+        return xpcf::XPCFErrorCode::_ERROR_INVALID_ARGUMENT;
 
-    return xpcf::_SUCCESS;
+    return xpcf::XPCFErrorCode::_SUCCESS;
 }
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>& keyframe)
