@@ -48,15 +48,15 @@
 		</configure>
         <configure component="SolARKeypointDetectorOpencv">
 			<property name="type" type="string" value="AKAZE2"/>
-			<property name="imageRatio" type="Float" value="1.0"/>
-			<property name="nbDescriptors" type="Integer" value="-1"/>
+            <property name="imageRatio" type="float" value="1.0"/>
+            <property name="nbDescriptors" type="int" value="-1"/>
 		</configure>
         <configure component="SolARDescriptorsExtractorAKAZE2Opencv">
-			<property name="threshold" type="Float" value="3e-4"/>
+            <property name="threshold" type="float" value="3e-4"/>
 		</configure>
         <configure component="SolARKeyframeRetrieverFBOW">
 			<property name="VOCpath" type="String" value="../../data/akaze.fbow"/>
-			<property name="threshold" type="Float" value="0.01"/>
+            <property name="threshold" type="float" value="0.01"/>
 		</configure>
     </properties>
 </xpcf-registry>
