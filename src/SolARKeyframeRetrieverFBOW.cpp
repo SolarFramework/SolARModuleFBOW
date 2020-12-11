@@ -64,6 +64,7 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>& keyframe)
 {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	// Convert desc of keyframe to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = keyframe->getDescriptors();
 	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
@@ -86,6 +87,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::suppressKeyframe(uint32_t keyframe_id)
 {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	auto it_KFBoW2 = m_list_KFBoW2.find(keyframe_id);
 	if (it_KFBoW2 == m_list_KFBoW2.end())
 		return FrameworkReturnCode::_ERROR_;
@@ -104,6 +106,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::suppressKeyframe(uint32_t keyfra
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& frame, std::vector<uint32_t> &retKeyframes_id)
 {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
 	if (desc_Solar->getNbDescriptors() == 0)
@@ -159,6 +162,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& frame, std::set<unsigned int> &canKeyframes_id, std::vector<uint32_t> & retKeyframes_id)
 {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
 	if (desc_Solar->getNbDescriptors() == 0)
@@ -245,6 +249,7 @@ void SolARKeyframeRetrieverFBOW::findBestMatches(const cv::Mat &feature1, const 
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame>& frame, const SRef<Keyframe>& keyframe, std::vector<DescriptorMatch> &matches)
 {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> descriptors = frame->getDescriptors();
 	if (descriptors->getNbDescriptors() == 0)
@@ -284,6 +289,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame>& frame, 
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> &descriptors, const SRef<Keyframe> &keyframe, std::vector<DescriptorMatch> &matches)
 {
+	std::unique_lock<std::mutex> lock(m_mutex);
 	// convert frame desc to Mat opencv
 	if (descriptors->getNbDescriptors() == 0)
 		return FrameworkReturnCode::_ERROR_;

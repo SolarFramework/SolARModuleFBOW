@@ -132,6 +132,9 @@ private:
 
 	/// @brief distance max used to keep good matches.
     float m_distanceMax = 100.f;
+
+	/// @brief mutex
+	std::mutex m_mutex;
 };
 
 }
