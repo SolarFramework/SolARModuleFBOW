@@ -62,7 +62,7 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
     return xpcf::XPCFErrorCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>& keyframe)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe> keyframe)
 {
 	// Convert desc of keyframe to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = keyframe->getDescriptors();
@@ -102,7 +102,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::suppressKeyframe(uint32_t keyfra
 	return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& frame, std::vector<uint32_t> &retKeyframes_id)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, std::vector<uint32_t> &retKeyframes_id)
 {
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
@@ -157,7 +157,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
     return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& frame, std::set<unsigned int> &canKeyframes_id, std::vector<uint32_t> & retKeyframes_id)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, const std::set<unsigned int> & canKeyframes_id, std::vector<uint32_t> & retKeyframes_id)
 {
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
@@ -243,7 +243,7 @@ void SolARKeyframeRetrieverFBOW::findBestMatches(const cv::Mat &feature1, const 
 		bestIdx = -1;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame>& frame, const SRef<Keyframe>& keyframe, std::vector<DescriptorMatch> &matches)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame> frame, const SRef<Keyframe> keyframe, std::vector<DescriptorMatch> &matches)
 {
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> descriptors = frame->getDescriptors();
@@ -282,7 +282,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame>& frame, 
 	return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> &descriptors, const SRef<Keyframe> &keyframe, std::vector<DescriptorMatch> &matches)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> descriptors, const SRef<Keyframe> keyframe, std::vector<DescriptorMatch> &matches)
 {
 	// convert frame desc to Mat opencv
 	if (descriptors->getNbDescriptors() == 0)
