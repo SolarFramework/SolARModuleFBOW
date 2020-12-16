@@ -191,7 +191,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame
 	return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(const std::string& file)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(const std::string& file) const
 {    
 	std::ofstream ofs(file, std::ios::binary);
 	OutputArchive oa(ofs);

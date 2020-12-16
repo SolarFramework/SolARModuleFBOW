@@ -73,7 +73,7 @@ public:
 	/// @brief This method allows to save the keyframe feature to the external file
 	/// @param[in] the file name
 	/// @return FrameworkReturnCode::_SUCCESS_ if the suppression succeed, else FrameworkReturnCode::_ERROR.
-	FrameworkReturnCode saveToFile(const std::string& file) override;
+    FrameworkReturnCode saveToFile(const std::string& file) const override;
 
 	/// @brief This method allows to load the keyframe feature from the external file
 	/// @param[in] the file name
