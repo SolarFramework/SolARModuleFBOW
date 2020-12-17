@@ -32,50 +32,55 @@
 			<interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
 			<interface uuid="f60980ce-bdbd-11e8-a355-529269fb1459" name="IKeyframeRetriever" description="IKeyframeRetriever"/>
 		</component>
-	</module>   
-
+    </module>
+    <factory>
+        <bindings>
+            <bind name="image1" interface="IImageLoader" to="SolARImageLoaderOpencv" properties="image1_prop"/>
+            <bind name="image2" interface="IImageLoader" to="SolARImageLoaderOpencv" properties="image2_prop"/>
+        </bindings>
+    </factory>
     <properties>
-        <configure component="SolARImageLoaderOpencv" name="image1">
+        <configure component="SolARImageLoaderOpencv" name="image1_prop">
 			<property name="filePath" type="string" value="../../data/Image1.png"/>
 		</configure>
-        <configure component="SolARImageLoaderOpencv" name="image2">
+        <configure component="SolARImageLoaderOpencv" name="image2_prop">
 			<property name="filePath" type="string" value="../../data/Image2.png"/>
 		</configure>
         <configure component="SolARKeypointDetectorOpencv">
 			<property name="type" type="string" value="AKAZE2"/>
-			<property name="imageRatio" type="Float" value="1.0"/>
-			<property name="nbDescriptors" type="Integer" value="-1"/>
+            <property name="imageRatio" type="float" value="1.0"/>
+            <property name="nbDescriptors" type="int" value="-1"/>
 		</configure>
         <configure component="SolARDescriptorsExtractorAKAZE2Opencv">
-			<property name="threshold" type="Float" value="3e-4"/>
+            <property name="threshold" type="float" value="3e-4"/>
 		</configure>
         <configure component="SolARKeyframeRetrieverFBOW">
-			<property name="VOCpath" type="String" value="../../data/akaze.fbow"/>
-			<property name="threshold" type="Float" value="0.01"/>
-			<property name="level" type="Integer" value="3"/>
-			<property name="matchingDistanceRatio" type="Float" value="0.8"/>
-			<property name="matchingDistanceMax" type="Float" value="600"/>
+            <property name="VOCpath" type="string" value="../../data/akaze.fbow"/>
+            <property name="threshold" type="float" value="0.01"/>
+            <property name="level" type="int" value="3"/>
+            <property name="matchingDistanceRatio" type="float" value="0.8"/>
+            <property name="matchingDistanceMax" type="float" value="600"/>
 		</configure>
 		<configure component="SolARGeometricMatchesFilterOpencv">
-			<property name="confidence" type="Float" value="0.99"/>
-			<property name="outlierDistanceRatio" type="Float" value="0.01"/>
-			<property name="epilinesDistance" type="Float" value="3.0"/>
+            <property name="confidence" type="float" value="0.99"/>
+            <property name="outlierDistanceRatio" type="float" value="0.01"/>
+            <property name="epilinesDistance" type="float" value="3.0"/>
 		</configure>
 		<configure component="SolARMatchesOverlayOpencv">
-            <property name="thickness" type="UnsignedInteger" value="1"/>
+            <property name="thickness" type="uint" value="1"/>
 			<property name="mode" type="string" value="RANDOM"/>
-			<property name="color"  type="UnsignedInteger">
+            <property name="color"  type="uint">
 				<value>0</value>
 				<value>0</value>
 				<value>255</value>
 			</property>
-			<property name="maxMatches" type="UnsignedInteger" value="-1"/>	
+            <property name="maxMatches" type="int" value="-1"/>
         </configure>
         <configure component="SolARImageViewerOpencv">
             <property name="title" type="string" value="Matches (press esc key to exit)"/>
-			<property name="exitKey" type="Integer" value="27"/>
-			<property name="width" type="Integer" value="0"/>
-			<property name="height" type="Integer" value="0"/>
+            <property name="exitKey" type="int" value="27"/>
+            <property name="width" type="int" value="0"/>
+            <property name="height" type="int" value="0"/>
         </configure>
     </properties>
 </xpcf-registry>

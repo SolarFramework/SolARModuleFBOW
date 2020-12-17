@@ -55,17 +55,15 @@ int main(int argc, char **argv) {
         /* this is needed in dynamic mode */
         SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-        if(xpcfComponentManager->load("conf_SolARFeatureMatchingUsingFBOW.xml")!=org::bcom::xpcf::_SUCCESS)
+        if(xpcfComponentManager->load("SolARTest_ModuleFBOW_FeatureMatching_conf.xml")!=org::bcom::xpcf::_SUCCESS)
         {
-            LOG_ERROR("Failed to load the configuration file conf_SolARFeatureMatchingUsingFBOW.xml")
+            LOG_ERROR("Failed to load the configuration file SolARTest_ModuleFBOW_FeatureMatching_conf.xml")
             return -1;
         }
 
         //load images used to create Reference keyFrames
-        auto imageLoader1 =xpcfComponentManager->resolve<image::IImageLoader>();
-        imageLoader1->bindTo<xpcf::IConfigurable>()->configure("conf_SolARFeatureMatchingUsingFBOW.xml", "image1");
-        auto imageLoader2 =xpcfComponentManager->resolve<image::IImageLoader>();
-        imageLoader2->bindTo<xpcf::IConfigurable>()->configure("conf_SolARFeatureMatchingUsingFBOW.xml", "image2");
+        auto imageLoader1 =xpcfComponentManager->resolve<image::IImageLoader>("image1");
+        auto imageLoader2 =xpcfComponentManager->resolve<image::IImageLoader>("image2");
 
         // keypoints detector and descriptor extractor
         auto keypointsDetector = xpcfComponentManager->resolve<features::IKeypointDetector>();

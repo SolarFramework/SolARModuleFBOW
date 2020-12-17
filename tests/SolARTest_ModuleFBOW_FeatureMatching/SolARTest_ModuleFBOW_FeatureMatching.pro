@@ -3,7 +3,7 @@ QT       -= core gui
 CONFIG -= qt
 
 ## global defintions : target lib name, version
-TARGET = SolARFeatureMatchingUsingFBOW
+TARGET = SolARTest_ModuleFBOW_FeatureMatching
 VERSION=0.9.0
 
 DEFINES += MYVERSION=$${VERSION}
@@ -62,7 +62,7 @@ win32 {
 }
 
 configfile.path = $${TARGETDEPLOYDIR}/
-configfile.files = $${PWD}/conf_SolARFeatureMatchingUsingFBOW.xml
+configfile.files = $${PWD}/SolARTest_ModuleFBOW_FeatureMatching_conf.xml
 INSTALLS += configfile
 
 DISTFILES += \
