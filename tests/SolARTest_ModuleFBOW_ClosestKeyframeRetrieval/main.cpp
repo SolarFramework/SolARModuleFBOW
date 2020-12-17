@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 
         if(xpcfComponentManager->load("SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf.xml")!=org::bcom::xpcf::_SUCCESS)
         {
-            LOG_ERROR("Failed to load the configuration file SolARFBOWClosestKeyframeRetrieval_conf.xml")
+            LOG_ERROR("Failed to load the configuration file SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf.xml")
             return -1;
         }
 
