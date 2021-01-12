@@ -34,6 +34,21 @@ namespace FBOW {
  * @brief <B>Retrieves keyframes closest to an input frame based on a Fast Bag Of Words implementaton.</B>
  * <TT>UUID: 9d1b1afa-bdbc-11e8-a355-529269fb1459</TT>
  *
+ * @SolARComponentPropertiesBegin
+ * @SolARComponentProperty{ VOCpath,
+ *                          path to the vocabulary file,
+ *                          @SolARComponentPropertyDescString{ "" }}
+ * @SolARComponentProperty{ threshold,
+ *                          the threshold above which keyframes are considered valid,
+ *                          @SolARComponentPropertyDescNum{ float, [0..MAX FLOAT], 0.f }}
+ * @SolARComponentProperty{ matchingDistanceRatio,
+ *                          distance ratio used to keep good matches,
+ *                          @SolARComponentPropertyDescNum{ float, [0..MAX FLOAT], 0.7f }}
+ * @SolARComponentProperty{ matchingDistanceMax,
+ *                          distance max used to keep good matches,
+ *                          @SolARComponentPropertyDescNum{ float, [0..MAX FLOAT], 100.f }}
+ * @SolARComponentPropertiesEnd
+ *
  */
 
 class SOLARFBOW_EXPORT_API SolARKeyframeRetrieverFBOW : public org::bcom::xpcf::ConfigurableBase,
