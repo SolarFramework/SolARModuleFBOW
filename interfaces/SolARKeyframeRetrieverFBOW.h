@@ -26,7 +26,6 @@
 #include "fbow.h"
 
 namespace SolAR {
-using namespace datastructure;
 namespace MODULES {
 namespace FBOW {
 
@@ -34,6 +33,21 @@ namespace FBOW {
  * @class SolARKeyframeRetrieverFBOW
  * @brief <B>Retrieves keyframes closest to an input frame based on a Fast Bag Of Words implementaton.</B>
  * <TT>UUID: 9d1b1afa-bdbc-11e8-a355-529269fb1459</TT>
+ *
+ * @SolARComponentPropertiesBegin
+ * @SolARComponentProperty{ VOCpath,
+ *                          path to the vocabulary file,
+ *                          @SolARComponentPropertyDescString{ "" }}
+ * @SolARComponentProperty{ threshold,
+ *                          the threshold above which keyframes are considered valid,
+ *                          @SolARComponentPropertyDescNum{ float, [0..MAX FLOAT], 0.f }}
+ * @SolARComponentProperty{ matchingDistanceRatio,
+ *                          distance ratio used to keep good matches,
+ *                          @SolARComponentPropertyDescNum{ float, [0..MAX FLOAT], 0.7f }}
+ * @SolARComponentProperty{ matchingDistanceMax,
+ *                          distance max used to keep good matches,
+ *                          @SolARComponentPropertyDescNum{ float, [0..MAX FLOAT], 100.f }}
+ * @SolARComponentPropertiesEnd
  *
  */
 
@@ -50,7 +64,7 @@ public:
 	/// @brief Add a keyframe to the retrieval model
 	/// @param[in] keyframe: the keyframe to add to the retrieval model
 	/// @return FrameworkReturnCode::_SUCCESS if the keyfram adding succeed, else FrameworkReturnCode::_ERROR_
-	FrameworkReturnCode addKeyframe(const SRef<Keyframe>& keyframe) override;
+    FrameworkReturnCode addKeyframe(const SRef<datastructure::Keyframe> keyframe) override;
 
 	/// @brief Suppress a keyframe from the retrieval model
 	/// @param[in] keyframe_id: the keyframe to supress from the retrieval model
@@ -62,31 +76,31 @@ public:
 	/// @param[in] frame: the frame for which we want to retrieve close keyframes.
 	/// @param[out] retKeyframes_id: a set of keyframe ids which are close to the frame pass in input
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-	FrameworkReturnCode retrieve(const SRef<Frame>& frame, std::vector<uint32_t> &retKeyframes_id) override;
+    FrameworkReturnCode retrieve(const SRef<datastructure::Frame> frame, std::vector<uint32_t> &retKeyframes_id) override;
 
 	/// @brief Retrieve a set of keyframes close to the frame pass in input.
 	/// @param[in] frame: the frame for which we want to retrieve close keyframes.
 	/// @param[in] canKeyframes_id: a set includes id of keyframe candidates
 	/// @param[out] retKeyframes_id: a set of keyframe ids which are close to the frame pass in input
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-	FrameworkReturnCode retrieve(const SRef<Frame>& frame, std::set<unsigned int> &canKeyframes_id, std::vector<uint32_t> & retKeyframes_id) override;
+    FrameworkReturnCode retrieve(const SRef<datastructure::Frame> frame, const std::set<unsigned int> & canKeyframes_id, std::vector<uint32_t> & retKeyframes_id) override;
 
 	/// @brief This method allows to save the keyframe feature to the external file
 	/// @param[in] the file name
 	/// @return FrameworkReturnCode::_SUCCESS_ if the suppression succeed, else FrameworkReturnCode::_ERROR.
-	FrameworkReturnCode saveToFile(const std::string& file) override;
+    FrameworkReturnCode saveToFile(const std::string& file) const override;
 
 	/// @brief This method allows to load the keyframe feature from the external file
 	/// @param[in] the file name
 	/// @return FrameworkReturnCode::_SUCCESS_ if the suppression succeed, else FrameworkReturnCode::_ERROR.
-	FrameworkReturnCode loadFromFile(const std::string& file) override;
+    FrameworkReturnCode loadFromFile(const std::string & file) override;
 
 	/// @brief Match a frame with a keyframe
 	/// @param[in] frame: the frame to match
 	/// @param[in] keyframe: keyframe to match
 	/// @param[out] matches: a set of matches between frame and keyframe
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-	virtual FrameworkReturnCode match(const SRef<Frame>& frame, const SRef<Keyframe>& keyframe, std::vector<DescriptorMatch> &matches) override;
+    virtual FrameworkReturnCode match(const SRef<datastructure::Frame> frame, const SRef<datastructure::Keyframe> keyframe, std::vector<datastructure::DescriptorMatch> &matches) override;
 
 	/// @brief Match a set of descriptors with a keyframe
 	/// @param[in] indexDescriptors: index of descriptors to match.
@@ -94,7 +108,7 @@ public:
 	/// @param[in] keyframe: keyframe to match
 	/// @param[out] matches: a set of matches between frame and keyframe
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-	virtual FrameworkReturnCode match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> &descriptors, const SRef<Keyframe> &keyframe, std::vector<DescriptorMatch> &matches) override;
+    virtual FrameworkReturnCode match(const std::vector<int> &indexDescriptors, const SRef<datastructure::DescriptorBuffer> descriptors, const SRef<datastructure::Keyframe> keyframe, std::vector<datastructure::DescriptorMatch> &matches) override;
 private:
 	/// @brief Match a feature to a set of features
 	/// @param[in] feature1: a feature

@@ -57,13 +57,13 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
 	file.close();
     m_VOC.readFromFile(m_VOCPath);
     if (!m_VOC.isValid())
-        return xpcf::_ERROR_INVALID_ARGUMENT;
+        return xpcf::XPCFErrorCode::_ERROR_INVALID_ARGUMENT;
 
-    return xpcf::_SUCCESS;
+    return xpcf::XPCFErrorCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>& keyframe)
-{	
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe> keyframe)
+{
 	// Convert desc of keyframe to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = keyframe->getDescriptors();
 	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
@@ -73,7 +73,6 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>
 	fbow::fBow2 v_bow2;
 	m_VOC.transform(desc_OpenCV, m_level, v_bow, v_bow2);
 
-	std::unique_lock<std::mutex> lock(m_mutex);
 	// Add bow desc to the database
 	m_list_KFBoW[keyframe->getId()] = v_bow;
 	m_list_KFBoW2[keyframe->getId()] = v_bow2;
@@ -87,7 +86,6 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::suppressKeyframe(uint32_t keyframe_id)
 {
-	std::unique_lock<std::mutex> lock(m_mutex);
 	auto it_KFBoW2 = m_list_KFBoW2.find(keyframe_id);
 	if (it_KFBoW2 == m_list_KFBoW2.end())
 		return FrameworkReturnCode::_ERROR_;
@@ -104,8 +102,8 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::suppressKeyframe(uint32_t keyfra
 	return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& frame, std::vector<uint32_t> &retKeyframes_id)
-{	
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, std::vector<uint32_t> &retKeyframes_id)
+{
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
 	if (desc_Solar->getNbDescriptors() == 0)
@@ -116,7 +114,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
 	fbow::fBow v_bow;
 	fbow::fBow2 v_bow2;
 	m_VOC.transform(desc_OpenCV, m_level, v_bow, v_bow2);
-	std::unique_lock<std::mutex> lock(m_mutex);
+
 	// get candidates that have at least 1 common word with the query frame
 	std::map<uint32_t, int> scoreCandidates;
 	for (auto const &it : v_bow2) {
@@ -159,8 +157,8 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
     return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& frame, std::set<unsigned int> &canKeyframes_id, std::vector<uint32_t> & retKeyframes_id)
-{	
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, const std::set<unsigned int> & canKeyframes_id, std::vector<uint32_t> & retKeyframes_id)
+{
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = frame->getDescriptors();
 	if (desc_Solar->getNbDescriptors() == 0)
@@ -170,7 +168,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
 	// calculate bow desc corresponding to the query frame
 	fbow::fBow v_bow;
 	v_bow = m_VOC.transform(desc_OpenCV);
-	std::unique_lock<std::mutex> lock(m_mutex);
+
 	// find nearest keyframes
 	std::multimap<double, int> sortDisKeyframes;
 	for (auto const &it : canKeyframes_id) {
@@ -193,9 +191,8 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame>& fram
 	return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(const std::string& file)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(const std::string& file) const
 {    
-	std::unique_lock<std::mutex> lock(m_mutex);
 	std::ofstream ofs(file, std::ios::binary);
 	OutputArchive oa(ofs);
 	oa << m_level;
@@ -208,7 +205,6 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(const std::string& fi
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::loadFromFile(const std::string& file)
 {
-	std::unique_lock<std::mutex> lock(m_mutex);
 	std::ifstream ifs(file, std::ios::binary);
 	if (!ifs.is_open())
 		return FrameworkReturnCode::_ERROR_;
@@ -247,8 +243,8 @@ void SolARKeyframeRetrieverFBOW::findBestMatches(const cv::Mat &feature1, const 
 		bestIdx = -1;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame>& frame, const SRef<Keyframe>& keyframe, std::vector<DescriptorMatch> &matches)
-{	
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame> frame, const SRef<Keyframe> keyframe, std::vector<DescriptorMatch> &matches)
+{
 	// convert frame desc to Mat opencv
 	SRef<DescriptorBuffer> descriptors = frame->getDescriptors();
 	if (descriptors->getNbDescriptors() == 0)
@@ -260,7 +256,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame>& frame, 
 	if (descriptors_kf->getNbDescriptors() == 0)
 		return FrameworkReturnCode::_ERROR_;
 	cv::Mat cvDescriptors_kf(descriptors_kf->getNbDescriptors(), descriptors_kf->getNbElements(), m_VOC.getDescType(), descriptors_kf->data());
-	std::unique_lock<std::mutex> lock(m_mutex);
+
 	// get fbow2 desc of keyframe
 	auto itBoW2 = m_list_KFBoW2.find(keyframe->getId());
 	if (itBoW2 == m_list_KFBoW2.end())
@@ -286,8 +282,8 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame>& frame, 
 	return FrameworkReturnCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> &descriptors, const SRef<Keyframe> &keyframe, std::vector<DescriptorMatch> &matches)
-{	
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &indexDescriptors, const SRef<DescriptorBuffer> descriptors, const SRef<Keyframe> keyframe, std::vector<DescriptorMatch> &matches)
+{
 	// convert frame desc to Mat opencv
 	if (descriptors->getNbDescriptors() == 0)
 		return FrameworkReturnCode::_ERROR_;
@@ -298,7 +294,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &in
 	if (descriptors_kf->getNbDescriptors() == 0)
 		return FrameworkReturnCode::_ERROR_;
 	cv::Mat cvDescriptors_kf(descriptors_kf->getNbDescriptors(), descriptors_kf->getNbElements(), m_VOC.getDescType(), descriptors_kf->data());
-	std::unique_lock<std::mutex> lock(m_mutex);
+
 	// get fbow2 desc of keyframe
 	auto itBoW2 = m_list_KFBoW2.find(keyframe->getId());
 	if (itBoW2 == m_list_KFBoW2.end())
