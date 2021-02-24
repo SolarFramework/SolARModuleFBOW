@@ -1,8 +1,8 @@
 %YAML:1.0
 ---
 calibration_time: "Wed Dec  6 14:02:31 2017"
-image_width: 640
-image_height: 480
+image_width: 1920
+image_height: 1080
 board_width: 9
 board_height: 6
 square_size: 2.6000000536441803e-02
