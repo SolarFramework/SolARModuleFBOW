@@ -71,6 +71,11 @@ doxygen/
 # Tests builds
 tests/bin
 
+# Tools
+tools/datafbow
+tools/build*
+tools/run.sh
+
 # Others
 *.*pre1
 *.rej
