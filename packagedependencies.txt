@@ -1,2 +1,2 @@
-fbowSolAR|0.0.4|fbowSolAR|thirdParties@github|https://github.com/SolarFramework/fbow/releases/download
+fbowSolAR|0.0.5|fbowSolAR|thirdParties@github|https://github.com/SolarFramework/fbow/releases/download
 SolARFramework|0.9.1|SolARFramework|SolARBuild@github|https://github.com/SolarFramework/SolarFramework/releases/download
