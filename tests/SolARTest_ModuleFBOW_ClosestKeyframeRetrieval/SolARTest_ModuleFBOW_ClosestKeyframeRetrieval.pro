@@ -4,6 +4,7 @@ CONFIG -= qt
 
 ## global defintions : target lib name, version
 TARGET = SolARTest_ModuleFBOW_ClosestKeyframeRetrieval
+VERSION=0.9.4
 
 DEFINES += MYVERSION=$${VERSION}
 CONFIG += c++1z
