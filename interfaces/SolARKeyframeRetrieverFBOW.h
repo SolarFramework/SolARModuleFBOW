@@ -100,7 +100,7 @@ public:
 	/// @param[in] keyframe: keyframe to match
 	/// @param[out] matches: a set of matches between frame and keyframe
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-    virtual FrameworkReturnCode match(const SRef<datastructure::Frame> frame, const SRef<datastructure::Keyframe> keyframe, std::vector<datastructure::DescriptorMatch> &matches) override;
+    FrameworkReturnCode match(const SRef<datastructure::Frame> frame, const SRef<datastructure::Keyframe> keyframe, std::vector<datastructure::DescriptorMatch> &matches) override;
 
 	/// @brief Match a set of descriptors with a keyframe
 	/// @param[in] indexDescriptors: index of descriptors to match.
@@ -108,7 +108,20 @@ public:
 	/// @param[in] keyframe: keyframe to match
 	/// @param[out] matches: a set of matches between frame and keyframe
 	/// @return FrameworkReturnCode::_SUCCESS if the retrieve succeed, else FrameworkReturnCode::_ERROR_
-    virtual FrameworkReturnCode match(const std::vector<int> &indexDescriptors, const SRef<datastructure::DescriptorBuffer> descriptors, const SRef<datastructure::Keyframe> keyframe, std::vector<datastructure::DescriptorMatch> &matches) override;
+    FrameworkReturnCode match(const std::vector<int> &indexDescriptors, const SRef<datastructure::DescriptorBuffer> descriptors, const SRef<datastructure::Keyframe> keyframe, std::vector<datastructure::DescriptorMatch> &matches) override;
+
+	/// @brief This method returns the keyframe retrieval
+	/// @return the keyframe retrieval
+	const SRef<datastructure::KeyframeRetrieval> & getConstKeyframeRetrieval() const override;
+
+	/// @brief This method returns the keyframe retrieval
+	/// @param[out] keyframeRetrieval the keyframe retrieval of map
+	/// @return the keyframe retrieval
+	std::unique_lock<std::mutex> getKeyframeRetrieval(SRef<datastructure::KeyframeRetrieval>& keyframeRetrieval) override;
+
+	/// @brief This method is to set the keyframe retrieval
+	/// @param[in] keyframeRetrieval the keyframe retrieval of map
+	void setKeyframeRetrieval(const SRef<datastructure::KeyframeRetrieval> keyframeRetrieval) override;
 private:
 	/// @brief Match a feature to a set of features
 	/// @param[in] feature1: a feature
@@ -119,6 +132,7 @@ private:
 	void findBestMatches(const cv::Mat &feature1, const cv::Mat &features2, std::vector<uint32_t> &idx, int &bestIdx, float &bestDist);
 
 private:
+	SRef<datastructure::KeyframeRetrieval> m_keyframeRetrieval;
 
     /// @brief path to the vocabulary file
     std::string m_VOCPath   = "";
@@ -129,17 +143,8 @@ private:
     /// @brief a vocabulary of visual words
     fbow::Vocabulary        m_VOC;	
 
-	/// @brief a map BoW descriptor of keyframes
-	std::map<uint32_t, fbow::fBow> m_list_KFBoW;
-
 	/// @brief level stored for BoW2
 	int	m_level				= 3;
-
-	/// @brief a map BoW2 descriptor of keyframes which save index of feature at nodes of the expected level
-	std::map<uint32_t, fbow::fBow2> m_list_KFBoW2;
-
-	/// @brief For each node at level m_level stores a set of frames that contain it
-	std::map<uint32_t, std::set<uint32_t>> m_invertedIndexKfs;
 
 	/// @brief distance ratio used to keep good matches.
     float m_distanceRatio = 0.7f;

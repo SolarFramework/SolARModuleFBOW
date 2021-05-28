@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 		SRef<DescriptorBuffer>      descriptors1, descriptors2, descriptors3, descriptors4, descriptors5;
 
 		// create a covisibility graph
-		std::string fileName = "keyframes_retriever.txt";
+		std::string fileName = "keyframes_retriever.bin";
 		LOG_INFO("Load the keyframes feature from {}", fileName);
 		if (kfRetriever->loadFromFile(fileName) == FrameworkReturnCode::_ERROR_) {
 			LOG_INFO("This file doesn't exist. Create a new keyframe database");
