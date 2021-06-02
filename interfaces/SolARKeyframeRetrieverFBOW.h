@@ -22,7 +22,6 @@
 #include <vector>
 #include <fstream>
 #include <core/SerializationDefinitions.h>
-
 #include "fbow.h"
 
 namespace SolAR {
