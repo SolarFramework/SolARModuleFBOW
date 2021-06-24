@@ -23,6 +23,7 @@
 #include "api/display/I2DOverlay.h"
 #include "api/features/IKeypointDetector.h"
 #include "api/features/IDescriptorsExtractor.h"
+#include "api/features/IDescriptorsExtractorFromImage.h"
 // OpenCV header
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
@@ -76,6 +77,7 @@ int main(int argc, char *argv[])
 	SRef<display::I2DOverlay> overlay2D;
 	SRef<features::IKeypointDetector> keypointsDetector;
 	SRef<features::IDescriptorsExtractor> descriptorExtractor;
+    SRef<features::IDescriptorsExtractorFromImage> descriptorExtractorFromImage;
 
 	// load components
     try {
@@ -94,6 +96,7 @@ int main(int argc, char *argv[])
 		overlay2D = xpcfComponentManager->resolve<display::I2DOverlay>();
 		keypointsDetector = xpcfComponentManager->resolve<features::IKeypointDetector>();
 		descriptorExtractor = xpcfComponentManager->resolve<features::IDescriptorsExtractor>();
+        descriptorExtractorFromImage = xpcfComponentManager->resolve<features::IDescriptorsExtractorFromImage>();
 		LOG_INFO("Components created!");
 	}
 	catch (xpcf::Exception e)
@@ -131,9 +134,14 @@ int main(int argc, char *argv[])
 		}
 		// feature extraction image
 		std::vector<Keypoint> keypoints;
-		keypointsDetector->detect(image, keypoints);
-		SRef<DescriptorBuffer> descriptors;
-		descriptorExtractor->extract(image, keypoints, descriptors);
+        SRef<DescriptorBuffer> descriptors;
+        if (descriptorExtractorFromImage)
+            descriptorExtractorFromImage->extract(image, keypoints, descriptors);
+        else
+        {
+            keypointsDetector->detect(image, keypoints);
+            descriptorExtractor->extract(image, keypoints, descriptors);
+        }
 		imageDescriptors.push_back(descriptors);
 		//LOG_INFO("Image {} - Number of features: {}\r", count, keypoints.size());
 		std::cout << "Process frame " << count << "\r";
