@@ -24,6 +24,7 @@
 #include "api/features/IKeypointDetector.h"
 #include "api/features/IDescriptorsExtractor.h"
 #include "api/features/IDescriptorsExtractorFromImage.h"
+#include "api/image/IImageConvertor.h"
 // OpenCV header
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
@@ -78,6 +79,7 @@ int main(int argc, char *argv[])
 	SRef<features::IKeypointDetector> keypointsDetector;
 	SRef<features::IDescriptorsExtractor> descriptorExtractor;
     SRef<features::IDescriptorsExtractorFromImage> descriptorExtractorFromImage;
+	SRef<image::IImageConvertor> imageConvertor;
 
 	// load components
     try {
@@ -97,6 +99,7 @@ int main(int argc, char *argv[])
 		keypointsDetector = xpcfComponentManager->resolve<features::IKeypointDetector>();
 		descriptorExtractor = xpcfComponentManager->resolve<features::IDescriptorsExtractor>();
         descriptorExtractorFromImage = xpcfComponentManager->resolve<features::IDescriptorsExtractorFromImage>();
+		imageConvertor = xpcfComponentManager->resolve<image::IImageConvertor>();
 		LOG_INFO("Components created!");
 	}
 	catch (xpcf::Exception e)
@@ -132,15 +135,21 @@ int main(int argc, char *argv[])
 			LOG_ERROR("Error during capture");
 			break;
 		}
+		// convert to grey image
+		SRef<Image> greyImage;
+		if (image->getImageLayout() != Image::ImageLayout::LAYOUT_GREY)
+			imageConvertor->convert(image, greyImage, datastructure::Image::ImageLayout::LAYOUT_GREY);
+		else
+			greyImage = image;
 		// feature extraction image
 		std::vector<Keypoint> keypoints;
         SRef<DescriptorBuffer> descriptors;
-        if (descriptorExtractorFromImage)
-            descriptorExtractorFromImage->extract(image, keypoints, descriptors);
+		if (descriptorExtractorFromImage)
+			descriptorExtractorFromImage->extract(greyImage, keypoints, descriptors);		
         else
         {
-            keypointsDetector->detect(image, keypoints);
-            descriptorExtractor->extract(image, keypoints, descriptors);
+            keypointsDetector->detect(greyImage, keypoints);
+            descriptorExtractor->extract(greyImage, keypoints, descriptors);
         }
 		imageDescriptors.push_back(descriptors);
 		//LOG_INFO("Image {} - Number of features: {}\r", count, keypoints.size());
