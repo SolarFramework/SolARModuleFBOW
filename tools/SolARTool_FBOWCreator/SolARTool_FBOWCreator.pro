@@ -83,7 +83,7 @@ unix {
 
 configfile.path = $${TARGETDEPLOYDIR}/
 configfile.files = $$files($${PWD}/SolARTool_FBOWCreator_conf.xml)\
-                   $$files($${PWD}/camera_calibration.yml)
+                   $$files($${PWD}/camera_calibration.json)
 INSTALLS += configfile
 
 OTHER_FILES += \
