@@ -15,6 +15,7 @@
  */
 
 #include "SolARKeyframeRetrieverFBOW.h"
+#include "SolARFBOWHelper.h"
 #include <core/Log.h>
 
 namespace xpcf = org::bcom::xpcf;
@@ -30,7 +31,7 @@ namespace FBOW {
 SolARKeyframeRetrieverFBOW::SolARKeyframeRetrieverFBOW():ConfigurableBase(xpcf::toUUID<SolARKeyframeRetrieverFBOW>())
 {
     addInterface<api::reloc::IKeyframeRetriever>(this);
-
+	m_keyframeRetrieval = xpcf::utils::make_shared<KeyframeRetrieval>();
     declareProperty("VOCpath",m_VOCPath);
     declareProperty("threshold", m_threshold);
     declareProperty("level", m_level);
@@ -73,33 +74,19 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>
 	fbow::fBow2 v_bow2;
 	m_VOC.transform(desc_OpenCV, m_level, v_bow, v_bow2);
 
+    // convertir bow to solar
+    datastructure::BoWFeature v_bowFeature = SolARFBOWHelper::fbow2Solar(v_bow);
+    datastructure::BoWLevelFeature v_bowLevelFeature = SolARFBOWHelper::fbow2Solar(v_bow2);
+
 	// Add bow desc to the database
-	m_list_KFBoW[keyframe->getId()] = v_bow;
-	m_list_KFBoW2[keyframe->getId()] = v_bow2;
-
-	// Add inverted index to the database
-	for (auto const &it : v_bow2)
-		m_invertedIndexKfs[it.first].insert(keyframe->getId());
-
-    return FrameworkReturnCode::_SUCCESS;
+	m_keyframeRetrieval->acquireLock();
+    return m_keyframeRetrieval->addDescriptor(keyframe->getId(), v_bowFeature, v_bowLevelFeature);
 }
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::suppressKeyframe(uint32_t keyframe_id)
 {
-	auto it_KFBoW2 = m_list_KFBoW2.find(keyframe_id);
-	if (it_KFBoW2 == m_list_KFBoW2.end())
-		return FrameworkReturnCode::_ERROR_;
-
-	// remove inverted index
-	const fbow::fBow2 &v_bow2 = it_KFBoW2->second;
-	for (auto const &it : v_bow2)
-		m_invertedIndexKfs[it.first].erase(keyframe_id);
-
-	// remove keyframe descriptors
-	m_list_KFBoW.erase(keyframe_id);
-	m_list_KFBoW2.erase(keyframe_id);	
-
-	return FrameworkReturnCode::_SUCCESS;
+	m_keyframeRetrieval->acquireLock();
+	return m_keyframeRetrieval->removeDescriptor(keyframe_id);	
 }
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, std::vector<uint32_t> &retKeyframes_id)
@@ -115,10 +102,16 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame
 	fbow::fBow2 v_bow2;
 	m_VOC.transform(desc_OpenCV, m_level, v_bow, v_bow2);
 
+    // convertir bow to solar
+    datastructure::BoWFeature v_bowFeature = SolARFBOWHelper::fbow2Solar(v_bow);
+    datastructure::BoWLevelFeature v_bowLevelFeature = SolARFBOWHelper::fbow2Solar(v_bow2);
+
 	// get candidates that have at least 1 common word with the query frame
 	std::map<uint32_t, int> scoreCandidates;
-	for (auto const &it : v_bow2) {
-		const std::set<uint32_t> &kfs_id = m_invertedIndexKfs[it.first];
+    for (auto const &it : v_bowLevelFeature) {
+		std::set<uint32_t> kfs_id; 		
+		if (m_keyframeRetrieval->getInvertedIndex(it.first, kfs_id) != FrameworkReturnCode::_SUCCESS)
+			continue;
 		for (auto const &it_kf : kfs_id)
 			scoreCandidates[it_kf]++;
 	}
@@ -139,19 +132,25 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame
 			bestCandidates.push_back(it.first);
 
 	// find nearest keyframes
-	std::multimap<double, int> sortDisKeyframes;
+    std::vector<std::pair<int, double>> distKeyframes;
 	for (auto const &it : bestCandidates) {
-		const fbow::fBow & kfBoW = m_list_KFBoW[it];
-		double score = kfBoW.score(kfBoW, v_bow);
+        datastructure::BoWFeature kfBoW;
+        if (m_keyframeRetrieval->getBoWFeature(it, kfBoW) != FrameworkReturnCode::_SUCCESS)
+			continue;
+        double score = SolARFBOWHelper::distanceBoW(kfBoW, v_bowFeature);
 		if (score > m_threshold)
-			sortDisKeyframes.insert(std::pair<double, int>(-score, it));
+            distKeyframes.push_back(std::pair<int, double>(it, score));
 	}
 
-	if (sortDisKeyframes.size() == 0)
+    if (distKeyframes.size() == 0)
 		return FrameworkReturnCode::_ERROR_;
 
-	for (auto const &it : sortDisKeyframes) {
-		retKeyframes_id.push_back(it.second);
+    // sort candidate keyframes according to score
+    std::sort(distKeyframes.begin(), distKeyframes.end(),
+            [](const std::pair<int, double>& v1, const std::pair<int, double>& v2) { return v1.second > v2.second; });
+
+    for (auto const &it : distKeyframes) {
+        retKeyframes_id.push_back(it.first);
 	}	
 
     return FrameworkReturnCode::_SUCCESS;
@@ -169,24 +168,30 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame
 	fbow::fBow v_bow;
 	v_bow = m_VOC.transform(desc_OpenCV);
 
+    // convertir bow to solar
+    datastructure::BoWFeature v_bowFeature = SolARFBOWHelper::fbow2Solar(v_bow);
+
 	// find nearest keyframes
-	std::multimap<double, int> sortDisKeyframes;
+    std::vector<std::pair<int, double>> distKeyframes;
 	for (auto const &it : canKeyframes_id) {
-		auto it_keyframe = m_list_KFBoW.find(it);
-		if (it_keyframe != m_list_KFBoW.end()) {
-			const fbow::fBow& kfBoW = it_keyframe->second;
-			double score = kfBoW.score(kfBoW, v_bow);
-			if (score > m_threshold)
-				sortDisKeyframes.insert(std::pair<double, int>(-score, it));
-		}
+        datastructure::BoWFeature kfBoW;
+        if (m_keyframeRetrieval->getBoWFeature(it, kfBoW) != FrameworkReturnCode::_SUCCESS)
+			continue;
+        double score = SolARFBOWHelper::distanceBoW(kfBoW, v_bowFeature);
+        if (score > m_threshold)
+            distKeyframes.push_back(std::pair<int, double>(it, score));
 	}
 
-	if (sortDisKeyframes.size() == 0)
-		return FrameworkReturnCode::_ERROR_;
+    if (distKeyframes.size() == 0)
+        return FrameworkReturnCode::_ERROR_;
 
-	for (auto const &it : sortDisKeyframes) {
-		retKeyframes_id.push_back(it.second);
-	}	
+    // sort candidate keyframes according to score
+    std::sort(distKeyframes.begin(), distKeyframes.end(),
+            [](const std::pair<int, double>& v1, const std::pair<int, double>& v2) { return v1.second > v2.second; });
+
+    for (auto const &it : distKeyframes) {
+        retKeyframes_id.push_back(it.first);
+    }
 
 	return FrameworkReturnCode::_SUCCESS;
 }
@@ -196,9 +201,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::saveToFile(const std::string& fi
 	std::ofstream ofs(file, std::ios::binary);
 	OutputArchive oa(ofs);
 	oa << m_level;
-	oa << m_list_KFBoW;
-	oa << m_list_KFBoW2;
-	oa << m_invertedIndexKfs;
+	oa << m_keyframeRetrieval;
 	ofs.close();
 	return FrameworkReturnCode::_SUCCESS;
 }
@@ -210,9 +213,7 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::loadFromFile(const std::string& 
 		return FrameworkReturnCode::_ERROR_;
     InputArchive ia(ifs);
 	ia >> m_level;
-	ia >> m_list_KFBoW;
-	ia >> m_list_KFBoW2;
-	ia >> m_invertedIndexKfs;
+	ia >> m_keyframeRetrieval;
 	ifs.close();
 	return FrameworkReturnCode::_SUCCESS;
 }
@@ -257,18 +258,17 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const SRef<Frame> frame, c
 		return FrameworkReturnCode::_ERROR_;
 	cv::Mat cvDescriptors_kf(descriptors_kf->getNbDescriptors(), descriptors_kf->getNbElements(), m_VOC.getDescType(), descriptors_kf->data());
 
-	// get fbow2 desc of keyframe
-	auto itBoW2 = m_list_KFBoW2.find(keyframe->getId());
-	if (itBoW2 == m_list_KFBoW2.end())
+    // get bow level desc of keyframe
+    datastructure::BoWLevelFeature bowLevelFeature;
+    if (m_keyframeRetrieval->getBoWLevelFeature(keyframe->getId(), bowLevelFeature) != FrameworkReturnCode::_SUCCESS)
 		return FrameworkReturnCode::_ERROR_;
-	const fbow::fBow2 &kfFBow2 = itBoW2->second;
 
 	for (int i = 0; i < cvDescriptors.rows; i++) {
 		const cv::Mat cvDescriptor = cvDescriptors.row(i);
 		int node = m_VOC.transform(cvDescriptor, m_level);
 		std::vector<uint32_t> candidates;
-		auto it = kfFBow2.find(node);
-		if (it != kfFBow2.end())
+        auto it = bowLevelFeature.find(node);
+        if (it != bowLevelFeature.end())
 			candidates = it->second;
 
 		// find the best match
@@ -295,19 +295,18 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &in
 		return FrameworkReturnCode::_ERROR_;
 	cv::Mat cvDescriptors_kf(descriptors_kf->getNbDescriptors(), descriptors_kf->getNbElements(), m_VOC.getDescType(), descriptors_kf->data());
 
-	// get fbow2 desc of keyframe
-	auto itBoW2 = m_list_KFBoW2.find(keyframe->getId());
-	if (itBoW2 == m_list_KFBoW2.end())
-		return FrameworkReturnCode::_ERROR_;
-	const fbow::fBow2 &kfFBow2 = itBoW2->second;
+    // get bow level desc of keyframe
+    datastructure::BoWLevelFeature bowLevelFeature;
+    if (m_keyframeRetrieval->getBoWLevelFeature(keyframe->getId(), bowLevelFeature) != FrameworkReturnCode::_SUCCESS)
+        return FrameworkReturnCode::_ERROR_;
 
 	std::vector<bool> checkMatches(keyframe->getKeypoints().size(), true);
 	for (auto &it_des: indexDescriptors) {
 		const cv::Mat cvDescriptor = cvDescriptors.row(it_des);
 		int node = m_VOC.transform(cvDescriptor, m_level);
 		std::vector<uint32_t> candidates;
-		auto it = kfFBow2.find(node);
-		if (it != kfFBow2.end())
+        auto it = bowLevelFeature.find(node);
+        if (it != bowLevelFeature.end())
 			candidates = it->second;
 
 		// find the best match
@@ -320,6 +319,22 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::match(const std::vector<int> &in
 		}
 	}
 	return FrameworkReturnCode::_SUCCESS;
+}
+
+const SRef<datastructure::KeyframeRetrieval>& SolARKeyframeRetrieverFBOW::getConstKeyframeRetrieval() const
+{
+	return m_keyframeRetrieval;
+}
+
+std::unique_lock<std::mutex> SolARKeyframeRetrieverFBOW::getKeyframeRetrieval(SRef<datastructure::KeyframeRetrieval>& keyframeRetrieval)
+{
+	keyframeRetrieval = m_keyframeRetrieval;
+	return m_keyframeRetrieval->acquireLock();
+}
+
+void SolARKeyframeRetrieverFBOW::setKeyframeRetrieval(const SRef<datastructure::KeyframeRetrieval> keyframeRetrieval)
+{
+	m_keyframeRetrieval = keyframeRetrieval;
 }
 
 
