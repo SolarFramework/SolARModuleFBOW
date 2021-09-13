@@ -21,8 +21,6 @@
 #include "api/input/devices/ICamera.h"
 #include "api/display/IImageViewer.h"
 #include "api/display/I2DOverlay.h"
-#include "api/features/IKeypointDetector.h"
-#include "api/features/IDescriptorsExtractor.h"
 #include "api/features/IDescriptorsExtractorFromImage.h"
 #include "api/image/IImageConvertor.h"
 // OpenCV header
@@ -76,8 +74,6 @@ int main(int argc, char *argv[])
 	SRef<input::devices::ICamera> camera;
 	SRef<display::IImageViewer> imageViewer;
 	SRef<display::I2DOverlay> overlay2D;
-	SRef<features::IKeypointDetector> keypointsDetector;
-	SRef<features::IDescriptorsExtractor> descriptorExtractor;
     SRef<features::IDescriptorsExtractorFromImage> descriptorExtractorFromImage;
 	SRef<image::IImageConvertor> imageConvertor;
 
@@ -96,8 +92,6 @@ int main(int argc, char *argv[])
 		camera = xpcfComponentManager->resolve<input::devices::ICamera>();
 		imageViewer = xpcfComponentManager->resolve<display::IImageViewer>();
 		overlay2D = xpcfComponentManager->resolve<display::I2DOverlay>();
-		keypointsDetector = xpcfComponentManager->resolve<features::IKeypointDetector>();
-		descriptorExtractor = xpcfComponentManager->resolve<features::IDescriptorsExtractor>();
         descriptorExtractorFromImage = xpcfComponentManager->resolve<features::IDescriptorsExtractorFromImage>();
 		imageConvertor = xpcfComponentManager->resolve<image::IImageConvertor>();
 		LOG_INFO("Components created!");
@@ -122,6 +116,8 @@ int main(int argc, char *argv[])
 	uint32_t width = camParams.resolution.width;
 	uint32_t height = camParams.resolution.height;
 	LOG_INFO("Resolution of image: {} x {}", width, height);
+	std::string descName = descriptorExtractorFromImage->getTypeString();
+	LOG_INFO("Feature type: {}", descName);
 
 	// Feature extraction
 	std::vector<SRef<DescriptorBuffer>> imageDescriptors;
@@ -144,13 +140,8 @@ int main(int argc, char *argv[])
 		// feature extraction image
 		std::vector<Keypoint> keypoints;
         SRef<DescriptorBuffer> descriptors;
-		if (descriptorExtractorFromImage)
-			descriptorExtractorFromImage->extract(greyImage, keypoints, descriptors);		
-        else
-        {
-            keypointsDetector->detect(greyImage, keypoints);
-            descriptorExtractor->extract(greyImage, keypoints, descriptors);
-        }
+		if (descriptorExtractorFromImage->extract(greyImage, keypoints, descriptors) != FrameworkReturnCode::_SUCCESS)
+			continue;        
 		imageDescriptors.push_back(descriptors);
 		//LOG_INFO("Image {} - Number of features: {}\r", count, keypoints.size());
 		std::cout << "Process frame " << count << "\r";
@@ -183,7 +174,6 @@ int main(int argc, char *argv[])
 	fbow::VocabularyCreator voc_creator;
 	fbow::Vocabulary voc;
 
-	std::string descName = keypointsDetector->bindTo<xpcf::IConfigurable>()->getProperty("type")->getStringValue();
 	LOG_INFO("Creating a {} ^ {} vocabulary of {} descriptor...", params.k, params.L, descName);
 	voc_creator.create(voc, allFeatures, descName, params);
 	std::cout << "nblocks=" << voc.size() << std::endl;
