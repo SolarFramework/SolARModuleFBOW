@@ -47,6 +47,7 @@ build/
 x64/
 .vs/
 *.bat
+*run.sh
 *remakeninfo.txt
 Debug/
 Release/
