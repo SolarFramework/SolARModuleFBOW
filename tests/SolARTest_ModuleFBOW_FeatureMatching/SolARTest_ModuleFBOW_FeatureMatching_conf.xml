@@ -25,6 +25,14 @@
 			<interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
 			<interface uuid="e0d6cc82-6af2-493d-901a-2384fca0b16f" name="IMatchesFilter" description="IMatchesFilter"/>
 		</component>
+		<component uuid="cf2721f2-0dc9-4442-ad1e-90c0ab12b0ff" name="SolARDescriptorsExtractorFromImageOpencv" description="SolARDescriptorsExtractorFromImageOpencv">
+			<interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+			<interface uuid="1cd4f5f1-6b74-413b-9725-69653aee48ef" name="IDescriptorsExtractorFromImage" description="IDescriptorsExtractorFromImage"/>
+		</component>
+		<component uuid="fd7fb607-144f-418c-bcf2-f7cf71532c22" name="SolARImageConvertorOpencv" description="SolARImageConvertorOpencv">
+			<interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+			<interface uuid="9c982719-6cb4-4831-aa88-9e01afacbd16" name="IImageConvertor" description="IImageLoader"/>
+        </component>
 	</module>
 
         <module uuid="b81f0b90-bdbc-11e8-a355-529269fb1459" name="SolARModuleFBOW"  description="SolARModuleFBOW" path="$XPCF_MODULE_ROOT/SolARBuild/SolARModuleFBOW/0.11.0/lib/x86_64/shared">
@@ -37,7 +45,14 @@
         <bindings>
             <bind name="image1" interface="IImageLoader" to="SolARImageLoaderOpencv" properties="image1_prop"/>
             <bind name="image2" interface="IImageLoader" to="SolARImageLoaderOpencv" properties="image2_prop"/>
+			<bind interface="IDescriptorsExtractorFromImage" to="SolARDescriptorsExtractorFromImageOpencv" range="default|all"/>
         </bindings>
+		<injects>
+			<inject to="SolARDescriptorsExtractorFromImageOpencv">
+				<bind interface="IKeypointDetector" to="SolARKeypointDetectorOpencv"/>
+				<bind interface="IDescriptorsExtractor" to="SolARDescriptorsExtractorAKAZE2Opencv"/>
+			</inject>
+		</injects>
     </factory>
     <properties>
         <configure component="SolARImageLoaderOpencv" name="image1_prop">
