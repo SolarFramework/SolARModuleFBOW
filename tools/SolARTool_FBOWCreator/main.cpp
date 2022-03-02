@@ -43,7 +43,6 @@ const cv::String keys =
 "{k|10| number of cluster at each node}"
 "{l|6| number of levels}"
 "{t|8| number of threads to accelerate}"
-"{d|0| distance type. 0: Unknow, 1:Hamming, 2:L2}"
 "{maxIters|5000| number of maximal iterations at each node}"
 "{v|0| verbose}"
 ;
@@ -70,7 +69,6 @@ int main(int argc, char *argv[])
 	int nbThreads = parser.get<int>("t");
 	int nbMaxIters = parser.get<int>("maxIters");
 	int bVerbose = parser.get<int>("v");
-	int disType = parser.get<int>("d");
 
 	// components
 	SRef<input::devices::ICamera> camera;
@@ -173,16 +171,13 @@ int main(int argc, char *argv[])
 	params.nthreads = nbThreads;
 	params.maxIters = nbMaxIters;
 	params.verbose = bVerbose;
-	params.disType = static_cast<fbow::DistanceType>(disType);
 	srand(0);
 	fbow::VocabularyCreator voc_creator;
 	fbow::Vocabulary voc;
 
-	LOG_INFO("Creating a {} ^ {} vocabulary of {} descriptor using distance type {} (0:unknown, 1:hamming, 2:L2)...", params.k, params.L, descName, disType);
+	LOG_INFO("Creating a {} ^ {} vocabulary of {} descriptor...", params.k, params.L, descName);
 	voc_creator.create(voc, allFeatures, descName, params);
 	std::cout << "nblocks=" << voc.size() << std::endl;
-	std::cout << "nbLeaves=" << voc.getNbLeafNodes() << std::endl;
-	std::cout << "disType=" << voc.getDistanceType() << std::endl;
 	voc.saveToFile(outputName);
 
 	std::cout << "Save dict done!!!" << std::endl;

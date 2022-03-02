@@ -63,8 +63,6 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
 	LOG_DEBUG("Descriptor type: {}", m_VOC.getDescType());
 	LOG_DEBUG("Descriptor size: {}", m_VOC.getDescSize());	
 	LOG_DEBUG("Nb of cluster per node: {}", m_VOC.getK());
-	LOG_DEBUG("Nb of depth levels: {}", m_VOC.getL());
-	LOG_DEBUG("Distance type: {}", m_VOC.getDistanceType());
 
     return xpcf::XPCFErrorCode::_SUCCESS;
 }
