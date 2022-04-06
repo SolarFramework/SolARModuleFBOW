@@ -24,7 +24,8 @@ namespace MODULES {
 /**
  * @namespace SolAR::MODULES::FBOW
  * @brief <B>Provides an image retrieval component based on Fast Bag Of Words library: https://github.com/rmsalinas/fbow </B>
- * <TT>UUID: b81f0b90-bdbc-11e8-a355-529269fb1459</TT>
+ * <TT>UUID (without CUDA): b81f0b90-bdbc-11e8-a355-529269fb1459</TT>
+ * <TT>UUID (with CUDA): 0aa58e12-b5ac-11ec-b909-0242ac120002</TT>
  *
  */
 namespace FBOW {
