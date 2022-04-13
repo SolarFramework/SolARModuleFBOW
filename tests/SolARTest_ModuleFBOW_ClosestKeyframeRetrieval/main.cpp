@@ -28,8 +28,7 @@
 // ADD COMPONENTS HEADERS HERE
 
 #include "api/image/IImageLoader.h"
-#include "api/features/IKeypointDetector.h"
-#include "api/features/IDescriptorsExtractor.h"
+#include "api/features/IDescriptorsExtractorFromImage.h"
 #include "api/reloc/IKeyframeRetriever.h"
 #include "core/Log.h"
 
@@ -71,9 +70,7 @@ int main(int argc, char **argv) {
         auto imageLoader5 =xpcfComponentManager->resolve<image::IImageLoader>("frame_0005");
 
         // keypoints detector and descriptor extractor
-        auto keypointsDetector = xpcfComponentManager->resolve<features::IKeypointDetector>();
-        auto descriptorExtractor = xpcfComponentManager->resolve<features::IDescriptorsExtractor>();
-
+		auto extractor = xpcfComponentManager->resolve<features::IDescriptorsExtractorFromImage>();
 
         // KeyframeRetriever component to relocalize
         auto kfRetriever = xpcfComponentManager->resolve<reloc::IKeyframeRetriever>();
@@ -85,7 +82,7 @@ int main(int argc, char **argv) {
 		// create a covisibility graph
 		std::string fileName = "keyframes_retriever.bin";
 		LOG_INFO("Load the keyframes feature from {}", fileName);
-		if (kfRetriever->loadFromFile(fileName) == FrameworkReturnCode::_ERROR_) {
+		if (true) {
 			LOG_INFO("This file doesn't exist. Create a new keyframe database");
 			if (imageLoader1->getImage(image1) != FrameworkReturnCode::_SUCCESS)
 			{
@@ -103,13 +100,9 @@ int main(int argc, char **argv) {
 				return -1;
 			}
 
-			keypointsDetector->detect(image1, keypoints1);
-			keypointsDetector->detect(image2, keypoints2);
-			keypointsDetector->detect(image3, keypoints3);
-
-			descriptorExtractor->extract(image1, keypoints1, descriptors1);
-			descriptorExtractor->extract(image2, keypoints2, descriptors2);
-			descriptorExtractor->extract(image3, keypoints3, descriptors3);
+			extractor->extract(image1, keypoints1, descriptors1);
+			extractor->extract(image2, keypoints2, descriptors2);
+			extractor->extract(image3, keypoints3, descriptors3);
 
 			// the tree first images are converted to keyframes
 			SRef<Keyframe> keyframe1, keyframe2, keyframe3;
@@ -146,11 +139,8 @@ int main(int argc, char **argv) {
             return -1;
         }
 
-        keypointsDetector->detect(image4, keypoints4);
-        keypointsDetector->detect(image5, keypoints5);
-     
-        descriptorExtractor->extract(image4, keypoints4, descriptors4);
-        descriptorExtractor->extract(image5, keypoints5, descriptors5);
+		extractor->extract(image4, keypoints4, descriptors4);
+		extractor->extract(image5, keypoints5, descriptors5);
 
         // with test image 4 the retriever should return keyFrame3 in top retrieved keyframes
         std::vector <uint32_t> ret_keyframes;

@@ -28,8 +28,7 @@
 // ADD COMPONENTS HEADERS HERE
 
 #include "api/image/IImageLoader.h"
-#include "api/features/IKeypointDetector.h"
-#include "api/features/IDescriptorsExtractor.h"
+#include "api/features/IDescriptorsExtractorFromImage.h"
 #include "api/reloc/IKeyframeRetriever.h"
 #include "api/display/IMatchesOverlay.h"
 #include "api/display/IImageViewer.h"
@@ -66,8 +65,7 @@ int main(int argc, char **argv) {
         auto imageLoader2 =xpcfComponentManager->resolve<image::IImageLoader>("image2");
 
         // keypoints detector and descriptor extractor
-        auto keypointsDetector = xpcfComponentManager->resolve<features::IKeypointDetector>();
-        auto descriptorExtractor = xpcfComponentManager->resolve<features::IDescriptorsExtractor>();
+        auto extractor = xpcfComponentManager->resolve<features::IDescriptorsExtractorFromImage>();
 
 
         // KeyframeRetriever component to relocalize
@@ -89,11 +87,8 @@ int main(int argc, char **argv) {
 			return -1;
 		}
 
-		keypointsDetector->detect(image1, keypoints1);
-		keypointsDetector->detect(image2, keypoints2);
-
-		descriptorExtractor->extract(image1, keypoints1, descriptors1);
-		descriptorExtractor->extract(image2, keypoints2, descriptors2);
+		extractor->extract(image1, keypoints1, descriptors1);
+		extractor->extract(image2, keypoints2, descriptors2);
 		LOG_INFO("Nb keypoints of image 1: {}", keypoints1.size());
 		LOG_INFO("Nb keypoints of image 2: {}", keypoints2.size());
 

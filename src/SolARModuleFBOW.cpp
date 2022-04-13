@@ -20,7 +20,12 @@
 
 namespace xpcf=org::bcom::xpcf;
 
-XPCF_DECLARE_MODULE("b81f0b90-bdbc-11e8-a355-529269fb1459", "SolARModuleFBOW", "SolARModuleFBOW")
+
+#ifdef WITHCUDA
+    XPCF_DECLARE_MODULE("0aa58e12-b5ac-11ec-b909-0242ac120002", "SolARModuleFBOWCuda", "SolARModuleFBOWCuda")
+#else
+    XPCF_DECLARE_MODULE("b81f0b90-bdbc-11e8-a355-529269fb1459", "SolARModuleFBOW", "SolARModuleFBOW")
+#endif // WITHCUDA
 
 extern "C" XPCF_MODULEHOOKS_API xpcf::XPCFErrorCode XPCF_getComponent(const boost::uuids::uuid& componentUUID,SRef<xpcf::IComponentIntrospect>& interfaceRef)
 {

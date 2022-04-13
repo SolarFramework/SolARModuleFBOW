@@ -161,6 +161,7 @@ int main(int argc, char *argv[])
 		for (int i = 0; i < cvDescriptorFrame.rows; ++i)
 			allFeatures.push_back(cvDescriptorFrame.row(i));
 	}
+	cv::destroyAllWindows();
 	LOG_INFO("Number of all features: {}", allFeatures.size());
 
 	// train the vocabulary using fbow

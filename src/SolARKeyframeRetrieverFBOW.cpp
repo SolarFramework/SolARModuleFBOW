@@ -59,6 +59,10 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
     m_VOC.readFromFile(m_VOCPath);
     if (!m_VOC.isValid())
         return xpcf::XPCFErrorCode::_ERROR_INVALID_ARGUMENT;
+	LOG_DEBUG("Descriptor name: {}", m_VOC.getDescName());
+	LOG_DEBUG("Descriptor type: {}", m_VOC.getDescType());
+	LOG_DEBUG("Descriptor size: {}", m_VOC.getDescSize());	
+	LOG_DEBUG("Nb of cluster per node: {}", m_VOC.getK());
 
     return xpcf::XPCFErrorCode::_SUCCESS;
 }
