@@ -7,7 +7,6 @@ QMAKE_PROJECT_DEPTH = 0
 ## global defintions : target lib name, version
 INSTALLSUBDIR = SolARBuild
 TARGET = SolARModuleFBOWCuda
-
 FRAMEWORK = $$TARGET
 VERSION=0.11.0
 
