@@ -1,6 +1,0 @@
-SolArModulePipeline {
-    moduleName="SolARModuleFBOWCuda"
-    dirName="SolARBuild"
-    runTests=true
-    android=false
-}

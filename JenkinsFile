@@ -1,0 +1,17 @@
+node("master") {
+	SolArModulePipeline {
+		moduleName="SolARModuleFBOW"
+		dirName="SolARBuild"
+		runTests=true
+		buildDir="SolARModuleFBOW"
+		android=true
+	}
+
+	SolArModulePipeline {
+		moduleName="SolARModuleFBOWCuda"
+		dirName="SolARBuild"
+		runTests=true
+		buildDir="SolARModuleFBOWCuda"
+		android=false
+	}
+}
