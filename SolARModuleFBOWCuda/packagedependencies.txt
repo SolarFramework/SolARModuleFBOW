@@ -1,2 +1,2 @@
-fbowSolARCuda|0.0.7|fbowSolARCuda|thirdParties@github|https://github.com/SolarFramework/fbow/releases/download
+fbowSolARCuda|0.0.8|fbowSolARCuda|thirdParties@github|https://github.com/SolarFramework/fbow/releases/download
 SolARFramework|1.0.0|SolARFramework|SolARBuild@github|https://github.com/SolarFramework/SolarFramework/releases/download
