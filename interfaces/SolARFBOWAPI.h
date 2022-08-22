@@ -18,7 +18,7 @@
 #define SOLAR_FBOW_API_H
 
 #if _WIN32
-#ifdef SolARModuleFBOW_API_DLLEXPORT
+#if defined(SolARModuleFBOW_API_DLLEXPORT) || defined(SolARModuleFBOWCuda_API_DLLEXPORT)
 #define SOLARFBOW_EXPORT_API __declspec(dllexport)
 #else //SOLARFBOW_API_DLLEXPORT
 #define SOLARFBOW_EXPORT_API __declspec(dllimport)

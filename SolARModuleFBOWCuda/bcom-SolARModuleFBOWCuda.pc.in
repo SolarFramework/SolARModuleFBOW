@@ -1,11 +1,11 @@
-libname=SolARModuleFBOW
+libname=SolARModuleFBOWCuda
 prefix=/usr/local
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/interfaces
-Name: SolARModuleFBOW
+Name: SolARModuleFBOWCuda
 Description:
-Version: 0.11.0
+Version: 1.0.0
 Requires:
 Libs: -L${libdir} -l${libname}
 Libs.private: ${libdir}/${pfx}${libname}.${lext}
