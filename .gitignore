@@ -9,6 +9,7 @@
 build*/
 */.build-rules/
 tests/*/.build-rules/
+deploy
 
 # Precompiled Headers
 *.gch
