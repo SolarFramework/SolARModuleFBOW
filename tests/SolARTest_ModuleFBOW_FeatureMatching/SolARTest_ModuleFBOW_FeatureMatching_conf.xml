@@ -56,10 +56,10 @@
     </factory>
     <properties>
         <configure component="SolARImageLoaderOpencv" name="image1_prop">
-                        <property name="filePath" type="string" value="../../../../data/Image1.png"/>
+                        <property name="filePath" type="string" value="../../../../../data/Image1.png"/>
 		</configure>
         <configure component="SolARImageLoaderOpencv" name="image2_prop">
-                        <property name="filePath" type="string" value="../../../../data/Image2.png"/>
+                        <property name="filePath" type="string" value="../../../../../data/Image2.png"/>
 		</configure>
         <configure component="SolARKeypointDetectorOpencv">
 			<property name="type" type="string" value="AKAZE2"/>
@@ -70,7 +70,7 @@
             <property name="threshold" type="float" value="3e-4"/>
 		</configure>
         <configure component="SolARKeyframeRetrieverFBOW">
-            <property name="VOCpath" type="string" value="../../../../data/akaze.fbow"/>
+            <property name="VOCpath" type="string" value="../../../../../data/akaze.fbow"/>
             <property name="threshold" type="float" value="0.01"/>
             <property name="level" type="int" value="3"/>
             <property name="matchingDistanceRatio" type="float" value="0.8"/>
