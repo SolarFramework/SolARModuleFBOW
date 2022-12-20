@@ -43,19 +43,19 @@
     </factory>
     <properties>
         <configure component="SolARImageLoaderOpencv" name="frame_0001_prop">
-                        <property name="filePath" type="string" value="../../../../data/frame_0001.png"/>
+                        <property name="filePath" type="string" value="../../../../../data/frame_0001.png"/>
 		</configure>
         <configure component="SolARImageLoaderOpencv" name="frame_0002_prop">
-                        <property name="filePath" type="string" value="../../../../data/frame_0002.png"/>
+                        <property name="filePath" type="string" value="../../../../../data/frame_0002.png"/>
 		</configure>
         <configure component="SolARImageLoaderOpencv" name="frame_0003_prop">
-                        <property name="filePath" type="string" value="../../../../data/frame_0003.png"/>
+                        <property name="filePath" type="string" value="../../../../../data/frame_0003.png"/>
 		</configure>
         <configure component="SolARImageLoaderOpencv" name="frame_0004_prop">
-                        <property name="filePath" type="string" value="../../../../data/frame_0004.png"/>
+                        <property name="filePath" type="string" value="../../../../../data/frame_0004.png"/>
 		</configure>
         <configure component="SolARImageLoaderOpencv" name="frame_0005_prop">
-                        <property name="filePath" type="string" value="../../../../data/frame_0005.png"/>
+                        <property name="filePath" type="string" value="../../../../../data/frame_0005.png"/>
 		</configure>
         <configure component="SolARKeypointDetectorOpencv">
 			<property name="type" type="string" value="AKAZE2"/>
@@ -66,7 +66,7 @@
             <property name="threshold" type="float" value="3e-4"/>
 		</configure>
         <configure component="SolARKeyframeRetrieverFBOW">
-                        <property name="VOCpath" type="string" value="../../../../data/akaze.fbow"/>
+                        <property name="VOCpath" type="string" value="../../../../../data/akaze.fbow"/>
             <property name="threshold" type="float" value="0.01"/>
 		</configure>
     </properties>
