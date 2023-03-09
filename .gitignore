@@ -48,7 +48,10 @@ deploy
 *vcxproj.*
 x64/
 .vs/
-*.bat
+SolARModuleFBOW/*.bat
+SolARModuleFBOWCuda/*.bat
+tests/SolARTest_ModuleFBOW_ClosestKeyframeRetrieval/*.bat
+tests/SolARTest_ModuleFBOW_FeatureMatching/*.bat
 *run.sh
 *remakeninfo.txt
 Debug/
