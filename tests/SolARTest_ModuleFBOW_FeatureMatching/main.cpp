@@ -33,6 +33,7 @@
 #include "api/display/IMatchesOverlay.h"
 #include "api/display/IImageViewer.h"
 #include "api/features/IMatchesFilter.h"
+#include "api/features/IDescriptorMatcher.h"
 #include "core/Log.h"
 
 
@@ -41,6 +42,9 @@ using namespace SolAR::datastructure;
 using namespace SolAR::api;
 
 namespace xpcf = org::bcom::xpcf;
+
+// rotate image 1 for better display 
+//#define ROTATE_IMAGE1_FOR_DISPLAY
 
 int main(int argc, char **argv) {
 
@@ -54,7 +58,13 @@ int main(int argc, char **argv) {
         /* this is needed in dynamic mode */
         SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
 
-        if(xpcfComponentManager->load("SolARTest_ModuleFBOW_FeatureMatching_conf.xml")!=org::bcom::xpcf::_SUCCESS)
+		std::string filenameXmlConfig = "SolARTest_ModuleFBOW_FeatureMatching_conf.xml";
+		if (argc == 2) {
+			filenameXmlConfig = argv[1];
+			LOG_INFO("Loading config file {}", filenameXmlConfig);
+		}
+
+        if(xpcfComponentManager->load(filenameXmlConfig.c_str())!=org::bcom::xpcf::_SUCCESS)
         {
             LOG_ERROR("Failed to load the configuration file SolARTest_ModuleFBOW_FeatureMatching_conf.xml")
             return -1;
@@ -67,6 +77,8 @@ int main(int argc, char **argv) {
         // keypoints detector and descriptor extractor
         auto extractor = xpcfComponentManager->resolve<features::IDescriptorsExtractorFromImage>();
 
+        // descriptor matcher 
+        auto matcher = xpcfComponentManager->resolve<features::IDescriptorMatcher>();
 
         // KeyframeRetriever component to relocalize
         auto kfRetriever = xpcfComponentManager->resolve<reloc::IKeyframeRetriever>();
@@ -105,7 +117,7 @@ int main(int argc, char **argv) {
 
         // match frame 2 to keyframe1
 		std::vector<DescriptorMatch> matches;
-		kfRetriever->match(frame2, keyframe1, matches);
+		matcher->match(frame2->getDescriptors(), keyframe1->getDescriptors(), matches);
 		LOG_INFO("Nb matches: {}", matches.size());
 
 		// matches filter
@@ -115,9 +127,18 @@ int main(int argc, char **argv) {
 
 		// Draw the matches in a dedicated image
 		auto overlay = xpcfComponentManager->resolve<display::IMatchesOverlay>();
+#ifdef ROTATE_IMAGE1_FOR_DISPLAY
+        image1->rotate90();
+        for (auto& kpt : keypoints1) {
+            Keypoint newPt(kpt.getId(), image1->getWidth()-kpt.getY(), kpt.getX(), kpt.getR(), kpt.getG(), kpt.getB(), 
+                kpt.getSize(), kpt.getAngle(), kpt.getResponse(), kpt.getOctave(), kpt.getClassId());
+            kpt = newPt;
+        }
+#endif
 		SRef<Image> imageMatches;
 		LOG_INFO("Draw matches");
 		overlay->draw(image2, image1, imageMatches, keypoints2, keypoints1, matches);
+        imageMatches->save("POPSIFT_after_rot.png");
 
 		auto viewer = xpcfComponentManager->resolve<display::IImageViewer>();
 		LOG_INFO("Display");

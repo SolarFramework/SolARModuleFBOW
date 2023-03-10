@@ -76,6 +76,7 @@
         <configure component="SolARKeyframeRetrieverFBOW">
             <property name="VOCpath" type="string" value="../../../../../data/fbow_voc/popsift_uint8.fbow"/>
             <property name="threshold" type="float" value="0.01"/>
+            <property name="level" type="int" value="3"/>
         </configure>
     </properties>
 </xpcf-registry>
