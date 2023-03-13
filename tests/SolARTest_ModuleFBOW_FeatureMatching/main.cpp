@@ -43,8 +43,11 @@ using namespace SolAR::api;
 
 namespace xpcf = org::bcom::xpcf;
 
-// rotate image 1 for better display 
-//#define ROTATE_IMAGE1_FOR_DISPLAY
+// rotate image before matching keypoints  
+//#define ROTATE_IMAGE_BEFORE_MATCHING
+
+// rotate image after matching keypoints 
+//#define ROTATE_IMAGE_AFTER_MATCHING
 
 int main(int argc, char **argv) {
 
@@ -99,6 +102,9 @@ int main(int argc, char **argv) {
 			return -1;
 		}
 
+#ifdef ROTATE_IMAGE_BEFORE_MATCHING
+        image1->rotate90();
+#endif
 		extractor->extract(image1, keypoints1, descriptors1);
 		extractor->extract(image2, keypoints2, descriptors2);
 		LOG_INFO("Nb keypoints of image 1: {}", keypoints1.size());
@@ -125,20 +131,18 @@ int main(int argc, char **argv) {
 		matchesFilter->filter(matches, matches, keypoints2, keypoints1);
 		LOG_INFO("Nb matches filter: {}", matches.size());
 
-		// Draw the matches in a dedicated image
-		auto overlay = xpcfComponentManager->resolve<display::IMatchesOverlay>();
-#ifdef ROTATE_IMAGE1_FOR_DISPLAY
+#ifdef ROTATE_IMAGE_AFTER_MATCHING
         image1->rotate90();
         for (auto& kpt : keypoints1) {
-            Keypoint newPt(kpt.getId(), image1->getWidth()-kpt.getY(), kpt.getX(), kpt.getR(), kpt.getG(), kpt.getB(), 
-                kpt.getSize(), kpt.getAngle(), kpt.getResponse(), kpt.getOctave(), kpt.getClassId());
-            kpt = newPt;
+        Keypoint newPt(kpt.getId(), image1->getWidth() - kpt.getY(), kpt.getX(), kpt.getR(), kpt.getG(), kpt.getB(), -kpt.getSize(), kpt.getAngle(), kpt.getResponse(), kpt.getOctave(), kpt.getClassId());
+        kpt = newPt;
         }
 #endif
+		// Draw the matches in a dedicated image
+		auto overlay = xpcfComponentManager->resolve<display::IMatchesOverlay>();
 		SRef<Image> imageMatches;
 		LOG_INFO("Draw matches");
 		overlay->draw(image2, image1, imageMatches, keypoints2, keypoints1, matches);
-        imageMatches->save("POPSIFT_after_rot.png");
 
 		auto viewer = xpcfComponentManager->resolve<display::IImageViewer>();
 		LOG_INFO("Display");

@@ -39,7 +39,7 @@ using namespace SolAR::api;
 
 namespace xpcf = org::bcom::xpcf;
 
-#define IS_TEST_POPSIFT
+//#define IS_TEST_POPSIFT
 
 int main(int argc, char **argv) {
 
