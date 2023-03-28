@@ -79,17 +79,12 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe>
 		const auto& isMatched = keyframe->getIsKeypointMatched();
 		if (!isMatched.empty()) {
 			descToComputeBow = xpcf::utils::make_shared<DescriptorBuffer>(desc_Solar->getDescriptorType(), desc_Solar->getDescriptorDataType(), desc_Solar->getNbElements(), 0);
-			DescriptorBufferIterator iter = begin(desc_Solar);
-			int counter = 0;
-			while (iter != end(desc_Solar)) {
-				if (isMatched[counter])
-					descToComputeBow->append(*iter);
-				counter++;
-				++iter;
-			}
+            for (auto i = 0; i < desc_Solar->getNbDescriptors(); i++)
+                if (isMatched[i])
+                    descToComputeBow->append(desc_Solar->getDescriptor(i));
 		}
 		else {
-			// when keyframe's matched keypoint map is empty, use all descriptors also
+            // when keyframe's matched keypoint map is empty, use all descriptors also
 			descToComputeBow = desc_Solar;
 		}
 	}
