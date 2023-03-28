@@ -67,11 +67,33 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
     return xpcf::XPCFErrorCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe> keyframe)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe> keyframe, bool useMatchedDescriptor)
 {
 	// Convert desc of keyframe to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = keyframe->getDescriptors();
-	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
+	SRef<DescriptorBuffer> descToComputeBow;
+	if (!useMatchedDescriptor) {
+		descToComputeBow = desc_Solar; // by default, use all descriptors 
+	}
+	else {
+		const auto& isMatched = keyframe->getIsKeypointMatched();
+		if (!isMatched.empty()) {
+			descToComputeBow = xpcf::utils::make_shared<DescriptorBuffer>(desc_Solar->getDescriptorType(), desc_Solar->getDescriptorDataType(), desc_Solar->getNbElements(), 0);
+			DescriptorBufferIterator iter = begin(desc_Solar);
+			int counter = 0;
+			while (iter != end(desc_Solar)) {
+				if (isMatched[counter])
+					descToComputeBow->append(*iter);
+				counter++;
+				++iter;
+			}
+		}
+		else {
+			// when keyframe's matched keypoint map is empty, use all descriptors also
+			descToComputeBow = desc_Solar;
+		}
+	}
+	cv::Mat desc_OpenCV(descToComputeBow->getNbDescriptors(), descToComputeBow->getNbElements(), m_VOC.getDescType(), descToComputeBow->data());
 
 	// Get bow desc corresponding to keyframe desc
 	fbow::fBow v_bow;

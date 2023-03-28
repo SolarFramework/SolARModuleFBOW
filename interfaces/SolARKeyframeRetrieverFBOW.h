@@ -62,8 +62,9 @@ public:
 
 	/// @brief Add a keyframe to the retrieval model
 	/// @param[in] keyframe: the keyframe to add to the retrieval model
+	/// @param[in] useMatchedDescriptor: if true bow feature will be computed merely from descriptors which are matched to other frames, by default is set to false meaning that all descriptors will be used
 	/// @return FrameworkReturnCode::_SUCCESS if the keyfram adding succeed, else FrameworkReturnCode::_ERROR_
-    FrameworkReturnCode addKeyframe(const SRef<datastructure::Keyframe> keyframe) override;
+    FrameworkReturnCode addKeyframe(const SRef<datastructure::Keyframe> keyframe, bool useMatchedDescriptor=false) override;
 
 	/// @brief Suppress a keyframe from the retrieval model
 	/// @param[in] keyframe_id: the keyframe to supress from the retrieval model
