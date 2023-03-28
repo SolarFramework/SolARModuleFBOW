@@ -31,6 +31,11 @@ public:
     static datastructure::BoWFeature fbow2Solar(const fbow::fBow& fbow);
     static datastructure::BoWLevelFeature fbow2Solar(const fbow::fBow2& fbow2);
     static double distanceBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+	static double distanceL1BoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+	static double distanceChiSquareBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+	static double distanceKLSBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+	static double distanceBhattacharyyaBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+	static double distanceDotProductBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
 };
 
 }
