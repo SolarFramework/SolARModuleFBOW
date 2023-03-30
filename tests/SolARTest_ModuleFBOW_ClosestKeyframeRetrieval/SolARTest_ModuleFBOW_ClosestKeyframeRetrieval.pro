@@ -87,11 +87,13 @@ linux {
 }
 
 configfile.path = $${TARGETDEPLOYDIR}/
-configfile.files = $${PWD}/SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf.xml
+configfile.files = $${PWD}/SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf.xml \
+                   $${PWD}/SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf_popsift.xml 
 INSTALLS += configfile
 
 DISTFILES += \
     SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf.xml \
+    SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf_popsift.xml
     packagedependencies.txt
 
 #NOTE : Must be placed at the end of the .pro
