@@ -32,6 +32,7 @@ enum class ScoringType {
     CHI_SQUARE,
     BHATTACHARYYA,
     DOT_PRODUCT,
+    KLS
 };
 
 class SOLARFBOW_EXPORT_API SolARFBOWHelper
