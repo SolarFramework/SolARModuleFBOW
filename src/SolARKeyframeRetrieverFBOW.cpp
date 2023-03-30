@@ -37,6 +37,7 @@ SolARKeyframeRetrieverFBOW::SolARKeyframeRetrieverFBOW():ConfigurableBase(xpcf::
     declareProperty("level", m_level);
 	declareProperty("matchingDistanceRatio", m_distanceRatio);
 	declareProperty("matchingDistanceMax", m_distanceMax);
+    declareProperty("distanceMetricId", m_distanceMetricId);
 
    LOG_DEBUG("SolARKeyframeRetrieverFBOW constructor");
 
@@ -158,7 +159,24 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame
         datastructure::BoWFeature kfBoW;
         if (m_keyframeRetrieval->getBoWFeature(it, kfBoW) != FrameworkReturnCode::_SUCCESS)
 			continue;
-        double score = SolARFBOWHelper::distanceBoW(kfBoW, v_bowFeature);
+        double score = 0.;
+        ScoringType scoreMethod = static_cast<ScoringType>(m_distanceMetricId);
+        if (scoreMethod == ScoringType::L2_NORM)
+            score = SolARFBOWHelper::distanceBoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::L1_NORM)
+            score = SolARFBOWHelper::distanceL1BoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::BHATTACHARYYA)
+            score = SolARFBOWHelper::distanceBhattacharyyaBoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::CHI_SQUARE)
+            score = SolARFBOWHelper::distanceChiSquareBoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::DOT_PRODUCT)
+            score = SolARFBOWHelper::distanceDotProductBoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::KLS)
+            score = SolARFBOWHelper::distanceKLSBoW(kfBoW, v_bowFeature);
+        else {
+            LOG_WARNING("Invalid BoW metric ID {}, use default L2", m_distanceMetricId);
+            score = SolARFBOWHelper::distanceBoW(kfBoW, v_bowFeature);
+        }
 		if (score > m_threshold)
             distKeyframes.push_back(std::pair<int, double>(it, score));
 	}

@@ -27,12 +27,12 @@ namespace FBOW {
 
 // scoring type 
 enum class ScoringType {
-    L1_NORM,
-    L2_NORM,
-    CHI_SQUARE,
-    BHATTACHARYYA,
-    DOT_PRODUCT,
-    KLS
+    L2_NORM = 0,
+    L1_NORM = 1,
+    CHI_SQUARE = 2,
+    BHATTACHARYYA = 3,
+    DOT_PRODUCT = 4,
+    KLS = 5
 };
 
 class SOLARFBOW_EXPORT_API SolARFBOWHelper

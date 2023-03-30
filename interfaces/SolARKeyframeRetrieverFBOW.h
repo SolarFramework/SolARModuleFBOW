@@ -151,6 +151,9 @@ private:
 
 	/// @brief distance max used to keep good matches.
     float m_distanceMax = 100.f;
+
+    /// @brief distance metric
+    int m_distanceMetricId = 0;
 };
 
 }
