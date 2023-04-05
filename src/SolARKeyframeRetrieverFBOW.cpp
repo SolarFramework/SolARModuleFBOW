@@ -111,6 +111,12 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::suppressKeyframe(uint32_t keyfra
 	return m_keyframeRetrieval->removeDescriptor(keyframe_id);	
 }
 
+void SolARKeyframeRetrieverFBOW::resetKeyframeRetrieval()
+{
+    m_keyframeRetrieval->acquireLock();
+    m_keyframeRetrieval->reset();
+}
+
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, std::vector<uint32_t> &retKeyframes_id)
 {
 	// convert frame desc to Mat opencv
