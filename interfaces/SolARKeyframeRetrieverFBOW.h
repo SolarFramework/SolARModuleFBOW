@@ -122,6 +122,10 @@ public:
 	/// @brief This method is to set the keyframe retrieval
 	/// @param[in] keyframeRetrieval the keyframe retrieval of map
 	void setKeyframeRetrieval(const SRef<datastructure::KeyframeRetrieval> keyframeRetrieval) override;
+
+    /// @brief This method is to reset keyframe retrieval contents 
+    void resetKeyframeRetrieval() override;
+
 private:
 	/// @brief Match a feature to a set of features
 	/// @param[in] feature1: a feature
