@@ -37,6 +37,7 @@ SolARKeyframeRetrieverFBOW::SolARKeyframeRetrieverFBOW():ConfigurableBase(xpcf::
     declareProperty("level", m_level);
 	declareProperty("matchingDistanceRatio", m_distanceRatio);
 	declareProperty("matchingDistanceMax", m_distanceMax);
+    declareProperty("distanceMetricId", m_distanceMetricId);
 
    LOG_DEBUG("SolARKeyframeRetrieverFBOW constructor");
 
@@ -67,11 +68,28 @@ xpcf::XPCFErrorCode SolARKeyframeRetrieverFBOW::onConfigured()
     return xpcf::XPCFErrorCode::_SUCCESS;
 }
 
-FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe> keyframe)
+FrameworkReturnCode SolARKeyframeRetrieverFBOW::addKeyframe(const SRef<Keyframe> keyframe, bool useMatchedDescriptor)
 {
 	// Convert desc of keyframe to Mat opencv
 	SRef<DescriptorBuffer> desc_Solar = keyframe->getDescriptors();
-	cv::Mat desc_OpenCV(desc_Solar->getNbDescriptors(), desc_Solar->getNbElements(), m_VOC.getDescType(), desc_Solar->data());
+	SRef<DescriptorBuffer> descToComputeBow;
+	if (!useMatchedDescriptor) {
+		descToComputeBow = desc_Solar; // by default, use all descriptors 
+	}
+	else {
+		const auto& isMatched = keyframe->getIsKeypointMatched();
+		if (!isMatched.empty()) {
+			descToComputeBow = xpcf::utils::make_shared<DescriptorBuffer>(desc_Solar->getDescriptorType(), desc_Solar->getDescriptorDataType(), desc_Solar->getNbElements(), 0);
+            for (auto i = 0; i < desc_Solar->getNbDescriptors(); i++)
+                if (isMatched[i])
+                    descToComputeBow->append(desc_Solar->getDescriptor(i));
+		}
+		else {
+            // when keyframe's matched keypoint map is empty, use all descriptors also
+			descToComputeBow = desc_Solar;
+		}
+	}
+	cv::Mat desc_OpenCV(descToComputeBow->getNbDescriptors(), descToComputeBow->getNbElements(), m_VOC.getDescType(), descToComputeBow->data());
 
 	// Get bow desc corresponding to keyframe desc
 	fbow::fBow v_bow;
@@ -91,6 +109,12 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::suppressKeyframe(uint32_t keyfra
 {
 	m_keyframeRetrieval->acquireLock();
 	return m_keyframeRetrieval->removeDescriptor(keyframe_id);	
+}
+
+void SolARKeyframeRetrieverFBOW::resetKeyframeRetrieval()
+{
+    m_keyframeRetrieval->acquireLock();
+    m_keyframeRetrieval->reset();
 }
 
 FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame, std::vector<uint32_t> &retKeyframes_id)
@@ -141,7 +165,24 @@ FrameworkReturnCode SolARKeyframeRetrieverFBOW::retrieve(const SRef<Frame> frame
         datastructure::BoWFeature kfBoW;
         if (m_keyframeRetrieval->getBoWFeature(it, kfBoW) != FrameworkReturnCode::_SUCCESS)
 			continue;
-        double score = SolARFBOWHelper::distanceBoW(kfBoW, v_bowFeature);
+        double score = 0.;
+        ScoringType scoreMethod = static_cast<ScoringType>(m_distanceMetricId);
+        if (scoreMethod == ScoringType::L2_NORM)
+            score = SolARFBOWHelper::distanceBoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::L1_NORM)
+            score = SolARFBOWHelper::distanceL1BoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::BHATTACHARYYA)
+            score = SolARFBOWHelper::distanceBhattacharyyaBoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::CHI_SQUARE)
+            score = SolARFBOWHelper::distanceChiSquareBoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::DOT_PRODUCT)
+            score = SolARFBOWHelper::distanceDotProductBoW(kfBoW, v_bowFeature);
+        else if (scoreMethod == ScoringType::KLS)
+            score = SolARFBOWHelper::distanceKLSBoW(kfBoW, v_bowFeature);
+        else {
+            LOG_WARNING("Invalid BoW metric ID {}, use default L2", m_distanceMetricId);
+            score = SolARFBOWHelper::distanceBoW(kfBoW, v_bowFeature);
+        }
 		if (score > m_threshold)
             distKeyframes.push_back(std::pair<int, double>(it, score));
 	}

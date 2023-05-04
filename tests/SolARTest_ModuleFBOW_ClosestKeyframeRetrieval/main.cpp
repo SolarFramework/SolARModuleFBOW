@@ -39,6 +39,8 @@ using namespace SolAR::api;
 
 namespace xpcf = org::bcom::xpcf;
 
+//#define IS_TEST_POPSIFT
+
 int main(int argc, char **argv) {
 
 #if NDEBUG
@@ -50,8 +52,14 @@ int main(int argc, char **argv) {
         /* instantiate component manager*/
         /* this is needed in dynamic mode */
         SRef<xpcf::IComponentManager> xpcfComponentManager = xpcf::getComponentManagerInstance();
+        std::string filenameConfig = "SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf.xml";
 
-        if(xpcfComponentManager->load("SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf.xml")!=org::bcom::xpcf::_SUCCESS)
+        if (argc == 2) {
+            filenameConfig = argv[1];
+            LOG_INFO("Loading config file {}", filenameConfig);
+        }
+
+        if(xpcfComponentManager->load(filenameConfig.c_str())!=org::bcom::xpcf::_SUCCESS)
         {
             LOG_ERROR("Failed to load the configuration file SolARTest_ModuleFBOW_ClosestKeyframeRetrieval_conf.xml")
             return -1;
@@ -141,7 +149,26 @@ int main(int argc, char **argv) {
 
 		extractor->extract(image4, keypoints4, descriptors4);
 		extractor->extract(image5, keypoints5, descriptors5);
+#ifdef IS_TEST_POPSIFT
+        SRef<Keyframe> keyframe4 = xpcf::utils::make_shared<Keyframe>(keypoints4, descriptors4, image4);
+        keyframe4->setId(3);
+        kfRetriever->addKeyframe(keyframe4);
 
+        // with test image 5 the retriever should not return any keyframe
+        SRef<Frame> frame5 = xpcf::utils::make_shared<Frame>(keypoints5, descriptors5, image5);
+        std::vector<uint32_t> ret_keyframes;
+        LOG_INFO("Retrieving close keyframes for testing image 5");
+        if (kfRetriever->retrieve(frame5, ret_keyframes) == FrameworkReturnCode::_SUCCESS) {
+            if (ret_keyframes[0] == 0) {
+                LOG_INFO("Test failed, 1st image does not look similar to 5th image");
+            }
+            else 
+                LOG_INFO("Test succeeded");
+        }
+        else {
+            LOG_INFO("Nothing found");
+        }
+#else 
         // with test image 4 the retriever should return keyFrame3 in top retrieved keyframes
         std::vector <uint32_t> ret_keyframes;
         SRef<Frame> frame4 = xpcf::utils::make_shared<Frame>(keypoints4, descriptors4, image4);
@@ -166,6 +193,7 @@ int main(int argc, char **argv) {
         }
         else
             LOG_INFO("image 5 test is KO ")
+#endif
     }
     catch (xpcf::Exception e)
     {
