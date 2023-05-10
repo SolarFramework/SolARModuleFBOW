@@ -25,12 +25,27 @@ namespace SolAR {
 namespace MODULES {
 namespace FBOW {
 
+// scoring type 
+enum class ScoringType {
+    L2_NORM = 0,
+    L1_NORM = 1,
+    CHI_SQUARE = 2,
+    BHATTACHARYYA = 3,
+    DOT_PRODUCT = 4,
+    KLS = 5
+};
+
 class SOLARFBOW_EXPORT_API SolARFBOWHelper
 {
 public:
     static datastructure::BoWFeature fbow2Solar(const fbow::fBow& fbow);
     static datastructure::BoWLevelFeature fbow2Solar(const fbow::fBow2& fbow2);
     static double distanceBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+    static double distanceL1BoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+    static double distanceChiSquareBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+    static double distanceKLSBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+    static double distanceBhattacharyyaBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
+    static double distanceDotProductBoW(const datastructure::BoWFeature& bow1, const datastructure::BoWFeature& bow2);
 };
 
 }

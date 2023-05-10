@@ -62,8 +62,9 @@ public:
 
 	/// @brief Add a keyframe to the retrieval model
 	/// @param[in] keyframe: the keyframe to add to the retrieval model
+	/// @param[in] useMatchedDescriptor: if true bow feature will be computed merely from descriptors which are matched to other frames, by default is set to false meaning that all descriptors will be used
 	/// @return FrameworkReturnCode::_SUCCESS if the keyfram adding succeed, else FrameworkReturnCode::_ERROR_
-    FrameworkReturnCode addKeyframe(const SRef<datastructure::Keyframe> keyframe) override;
+    FrameworkReturnCode addKeyframe(const SRef<datastructure::Keyframe> keyframe, bool useMatchedDescriptor=false) override;
 
 	/// @brief Suppress a keyframe from the retrieval model
 	/// @param[in] keyframe_id: the keyframe to supress from the retrieval model
@@ -121,6 +122,10 @@ public:
 	/// @brief This method is to set the keyframe retrieval
 	/// @param[in] keyframeRetrieval the keyframe retrieval of map
 	void setKeyframeRetrieval(const SRef<datastructure::KeyframeRetrieval> keyframeRetrieval) override;
+
+    /// @brief This method is to reset keyframe retrieval contents 
+    void resetKeyframeRetrieval() override;
+
 private:
 	/// @brief Match a feature to a set of features
 	/// @param[in] feature1: a feature
@@ -150,6 +155,9 @@ private:
 
 	/// @brief distance max used to keep good matches.
     float m_distanceMax = 100.f;
+
+    /// @brief distance metric
+    int m_distanceMetricId = 0;
 };
 
 }
