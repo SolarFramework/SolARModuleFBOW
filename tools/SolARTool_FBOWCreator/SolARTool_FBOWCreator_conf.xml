@@ -74,16 +74,16 @@
 	
     <properties>
         <configure component="SolARCameraOpencv">
-            <property name="calibrationFile" type="string" value="camera_calibration.json"/>
+            <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration.json"/>
             <property name="deviceID" type="uint" value="1"/>
         </configure>
         <configure component="SolARImagesAsCameraOpencv">
-            <property name="calibrationFile" type="string" value="camera_calibration.json"/>		<!--path to calibration file"/-->
-            <property name="imagesDirectoryPath" type="string" value="../../../datafbow/%06d.png"/>		<!--path to images"/-->
+            <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration.json"/>		<!--path to calibration file"/-->
+            <property name="imagesDirectoryPath" type="string" value="../../../../../data/datafbow/%06d.png"/>		<!--path to images"/-->
             <property name="delayTime" type="int" value="30"/>
         </configure>
         <configure component="SolARVideoAsCameraOpencv">
-            <property name="calibrationFile" type="string" value="camera_calibration.json"/>
+            <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration.json"/>
             <property name="videoPath" type="string" value="path to video"/>
             <property name="delayTime" type="int" value="30"/>
         </configure>
