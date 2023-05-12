@@ -2,6 +2,8 @@
 QT       -= core gui
 CONFIG -= qt
 
+QMAKE_PROJECT_DEPTH = 0
+
 ## global defintions : target lib name, version
 TARGET = SolARTool_FBOWCreator
 VERSION=1.0.0
@@ -23,7 +25,7 @@ CONFIG(release,debug|release) {
     DEFINES += NDEBUG=1
 }
 
-DEPENDENCIESCONFIG = sharedlib install_recurse
+DEPENDENCIESCONFIG = shared install_recurse
 
 win32:CONFIG -= static
 win32:CONFIG += shared
@@ -34,10 +36,7 @@ PROJECTCONFIG = QTVS
 #NOTE : CONFIG as staticlib or sharedlib, DEPENDENCIESCONFIG as staticlib or sharedlib, QMAKE_TARGET.arch and PROJECTDEPLOYDIR MUST BE DEFINED BEFORE templatelibconfig.pri inclusion
 include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/templateappconfig.pri)))  # Shell_quote & shell_path required for visual on windows
 
-#DEFINES += BOOST_ALL_NO_LIB
-DEFINES += BOOST_ALL_DYN_LINK
-DEFINES += BOOST_AUTO_LINK_NOMANGLE
-DEFINES += BOOST_LOG_DYN_LINK
+HEADERS += \
 
 SOURCES += \
     main.cpp
@@ -45,6 +44,9 @@ SOURCES += \
 unix {
     LIBS += -ldl
     QMAKE_CXXFLAGS += -DBOOST_LOG_DYN_LINK
+
+    # Avoids adding install steps manually. To be commented to have a better control over them.
+    QMAKE_POST_LINK += "make install install_deps"
 }
 
 linux {
@@ -68,7 +70,7 @@ win32 {
     INCLUDEPATH += $$(WINDOWSSDKDIR)lib/winv6.3/um/x64
 }
 
-unix {
+linux {
   run_install.path = $${TARGETDEPLOYDIR}
   run_install.files = $${PWD}/../run.sh
   CONFIG(release,debug|release) {
