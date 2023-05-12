@@ -82,12 +82,13 @@ unix {
 
 configfile.path = $${TARGETDEPLOYDIR}/
 configfile.files = $$files($${PWD}/SolARTool_FBOWCreator_conf.xml)\
-                   $$files($${PWD}/camera_calibration.json)
+                   $$files($${PWD}/SolARTool_FBOWCreator_PopSift_conf.xml)
 INSTALLS += configfile
 
 DISTFILES += \
     packagedependencies.txt \
-    SolARTool_FBOWCreator_conf.xml
+    SolARTool_FBOWCreator_conf.xml \
+    SolARTool_FBOWCreator_PopSift_conf.xml
 
 #NOTE : Must be placed at the end of the .pro
 include ($$shell_quote($$shell_path($${QMAKE_REMAKEN_RULES_ROOT}/remaken_install_target.pri)))) # Shell_quote & shell_path required for visual on windows

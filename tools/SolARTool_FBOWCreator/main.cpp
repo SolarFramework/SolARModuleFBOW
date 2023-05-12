@@ -43,7 +43,7 @@ const cv::String keys =
 "{k|10| number of cluster at each node}"
 "{l|6| number of levels}"
 "{t|8| number of threads to accelerate}"
-"{maxIters|5000| number of maximal iterations at each node}"
+"{maxIters|2000| number of maximal iterations at each node}"
 "{v|0| verbose}"
 ;
 
@@ -102,14 +102,6 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	// Start camera capture
-	if (camera->start() == FrameworkReturnCode::_ERROR_)
-	{
-		LOG_ERROR("Cannot start loader");
-		return -1;
-	}
-	LOG_INFO("Data loader started!");
-
 	// Get and set camera intrinsics parameters
 	CameraParameters camParams;
 	camParams = camera->getParameters();
@@ -118,6 +110,15 @@ int main(int argc, char *argv[])
 	LOG_INFO("Resolution of image: {} x {}", width, height);
 	std::string descName = descriptorExtractorFromImage->getTypeString();
 	LOG_INFO("Feature type: {}", descName);
+	camera->setResolution({width, height});
+
+	// Start camera capture
+	if (camera->start() == FrameworkReturnCode::_ERROR_)
+	{
+		LOG_ERROR("Cannot start loader");
+		return -1;
+	}
+	LOG_INFO("Data loader started!");
 
 	// Feature extraction
 	std::vector<SRef<DescriptorBuffer>> imageDescriptors;
@@ -143,8 +144,8 @@ int main(int argc, char *argv[])
 		if (descriptorExtractorFromImage->extract(greyImage, keypoints, descriptors) != FrameworkReturnCode::_SUCCESS)
 			continue;        
 		imageDescriptors.push_back(descriptors);
-		//LOG_INFO("Image {} - Number of features: {}\r", count, keypoints.size());
-		std::cout << "Process frame " << count << "\r";
+		if (bVerbose)
+			LOG_INFO("Image {} - Size {}x{} - Number of features: {}\r", count, greyImage->getWidth(), greyImage->getHeight(), keypoints.size());
 		count++;
 		// display image
 		overlay2D->drawCircles(keypoints, image);
