@@ -73,7 +73,7 @@
         </configure>
         <configure component="SolARImagesAsCameraOpencv">
             <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration_640x480.json"/>	
-            <property name="imagesDirectoryPath" type="string" value="../../../../../data/datafbow/%06d.png"/>
+            <property name="imagesDirectoryPath" type="string" value="../../../../../data/datafbow/%08d.jpg"/>
             <property name="delayTime" type="int" value="30"/>
         </configure>
         <configure component="SolARVideoAsCameraOpencv">

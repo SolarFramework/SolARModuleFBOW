@@ -9,7 +9,7 @@ This project is a tool that allows to create a fbow vocabulary from a set of ima
 
 ### Data installation
 
-You can run installData.bat (under windows) or installData.sh (under linux) to download a small example dataset of about 1000 images, as well as two camera calibration files necessary to run the code. The file camera_calibration_1920x1080.json corresponds to the original image resolution. If you use the other file camera_calibration_640x480.json, the input images will be resized to 640x480 before the FBOW generation. Note that in both cases, only the width and height are used. In fact, without such a calibration file, **SolARImagesAsCameraOpencv** will not work. That is why we need these two calibration files. 
+You can run installData.bat (under windows) or installData.sh (under linux) to download a small example dataset of about 1000 images, as well as two camera calibration files necessary to run the code. The file camera_calibration_1344x756.json corresponds to the original image resolution. If you use the other file camera_calibration_640x480.json, the input images will be resized to 640x480 before the FBOW generation. Note that in both cases, only the width and height are used. In fact, without such a calibration file, **SolARImagesAsCameraOpencv** will not work. That is why we need these two calibration files. 
 
 ### Configuration
 
@@ -18,7 +18,7 @@ You can also configure the type of feature (e.g. AKAZE2, ORB, SIFT, PopSift, ...
 
 ### More Datasets
 
-It is recommanded to use a larger database in order to generate better vocabularies. You can download public image databases or use your own datasets. Please remember to modify **imagesDirectoryPath** in SolARTool_FBOWCreator_conf.xml beforing running the code. 
+It is recommanded to use a larger database in order to generate better vocabularies. You can download public image databases or use your own datasets. For example, you can download the 7-Scenes dataset (https://www.microsoft.com/en-us/research/project/rgb-d-dataset-7-scenes/). Please remember to modify **imagesDirectoryPath** in SolARTool_FBOWCreator_conf.xml beforing running the code. 
 
 
 ### Run samples
