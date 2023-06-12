@@ -50,7 +50,7 @@ unix {
     QMAKE_POST_LINK += "make install install_deps"
 }
 
-unix:!android {
+unix {
     QMAKE_CXXFLAGS += -Wignored-qualifiers
 }
 
@@ -68,10 +68,6 @@ win32 {
     QMAKE_CXXFLAGS_DEBUG += /Od
 }
 
-android {
-    ANDROID_ABIS="arm64-v8a"
-}
-
 header_files.path = $${PROJECTDEPLOYDIR}/interfaces
 header_files.files = $$files($${PWD}/../interfaces/*.h*)
 
@@ -85,7 +81,6 @@ OTHER_FILES += \
     packagedependencies.txt \
     packagedependencies-win.txt \
     packagedependencies-linux.txt \
-    packagedependencies-android.txt \
     packageignoreinstall.txt
 
 #NOTE : Must be placed at the end of the .pro
