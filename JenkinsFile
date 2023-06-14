@@ -4,7 +4,6 @@ node("master") {
 		dirName="SolARBuild"
 		runTests=true
 		buildDir="SolARModuleFBOW"
-		android=true
 	}
 
 	SolArModulePipeline {
@@ -12,6 +11,5 @@ node("master") {
 		dirName="SolARBuild"
 		runTests=true
 		buildDir="SolARModuleFBOWCuda"
-		android=false
 	}
 }
