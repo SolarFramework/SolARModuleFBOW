@@ -7,8 +7,7 @@
 *.o
 *.obj
 build*/
-*/.build-rules/
-tests/*/.build-rules/
+*build-rules
 deploy
 
 # Precompiled Headers
@@ -49,7 +48,11 @@ deploy
 *vcxproj.*
 x64/
 .vs/
-*.bat
+SolARModuleFBOW/*.bat
+SolARModuleFBOWCuda/*.bat
+tests/SolARTest_ModuleFBOW_ClosestKeyframeRetrieval/*.bat
+tests/SolARTest_ModuleFBOW_FeatureMatching/*.bat
+tests/SolARTest_ModuleFBOW_ClosestKeyframeRetrieval/*.aps
 *run.sh
 *remakeninfo.txt
 Debug/

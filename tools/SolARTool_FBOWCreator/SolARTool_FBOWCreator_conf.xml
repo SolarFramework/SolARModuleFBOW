@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <xpcf-registry autoAlias="true">
-    <module uuid="15e1990b-86b2-445c-8194-0cbe80ede970" name="SolARModuleOpenCV" description="SolARModuleOpenCV" path="$XPCF_MODULE_ROOT/SolARBuild/SolARModuleOpenCV/0.11.0/lib/x86_64/shared">
+    <module uuid="15e1990b-86b2-445c-8194-0cbe80ede970" name="SolARModuleOpenCV" description="SolARModuleOpenCV" path="$XPCF_MODULE_ROOT/SolARBuild/SolARModuleOpenCV/1.0.0/lib/x86_64/shared">
         <component uuid="5B7396F4-A804-4F3C-A0EB-FB1D56042BB4" name="SolARCameraOpencv" description="SolARCameraOpencv">
             <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
             <interface uuid="5DDC7DF0-8377-437F-9C81-3643F7676A5B" name="ICamera" description="ICamera"/>
@@ -50,12 +50,6 @@
 			<interface uuid="9c982719-6cb4-4831-aa88-9e01afacbd16" name="IImageConvertor" description="IImageLoader"/>
         </component>
     </module>
-    <module uuid="4a43732c-a1b2-11eb-bcbc-0242ac130002" name="SolARModulePopSift" description="SolARModulePopSift" path="$XPCF_MODULE_ROOT/SolARBuild/SolARModulePopSift/0.11.0/lib/x86_64/shared">
-        <component uuid="7fb2aace-a1b1-11eb-bcbc-0242ac130002" name="SolARDescritorsExtractorFromImagePopSift" description="SolARDescritorsExtractorFromImagePopSift">
-            <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
-            <interface uuid="1cd4f5f1-6b74-413b-9725-69653aee48ef" name="IDescriptorsExtractorFromImage" description="IDescriptorsExtractorFromImage"/>
-        </component>
-    </module>
 
     <factory>
         <bindings>
@@ -74,16 +68,16 @@
 	
     <properties>
         <configure component="SolARCameraOpencv">
-            <property name="calibrationFile" type="string" value="camera_calibration.json"/>
+            <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration_640x480.json"/>
             <property name="deviceID" type="uint" value="1"/>
         </configure>
         <configure component="SolARImagesAsCameraOpencv">
-            <property name="calibrationFile" type="string" value="camera_calibration.json"/>		<!--path to calibration file"/-->
-            <property name="imagesDirectoryPath" type="string" value="../../../datafbow/%06d.png"/>		<!--path to images"/-->
+            <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration_640x480.json"/>	
+            <property name="imagesDirectoryPath" type="string" value="../../../../../data/datafbow/%08d.jpg"/>
             <property name="delayTime" type="int" value="30"/>
         </configure>
         <configure component="SolARVideoAsCameraOpencv">
-            <property name="calibrationFile" type="string" value="camera_calibration.json"/>
+            <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration_640x480.json"/>
             <property name="videoPath" type="string" value="path to video"/>
             <property name="delayTime" type="int" value="30"/>
         </configure>
@@ -106,18 +100,6 @@
         <configure component="SolARDescriptorsExtractorSIFTOpencv">
             <property name="nbFeatures" type="int" value="3000"/>
             <property name="nbOctaveLayers" type="int" value="3"/>
-        </configure>
-        <configure component="SolARDescritorsExtractorFromImagePopSift">
-            <property name="mode" type="string" value="PopSift"/>
-            <property name="imageMode" type="string" value="Unsigned Char"/>
-            <property name="nbOctaves" type="int" value="3"/>
-            <property name="nbLevelPerOctave" type="int" value="3"/>
-            <property name="sigma" type="float" value="1.0"/>
-            <property name="threshold" type="float" value="0.005"/>
-            <property name="edgeLimit" type="float" value="10.0"/>
-            <property name="downsampling" type="float" value="1.0"/>
-            <property name="initialBlur" type="float" value="-1.0"/>
-            <property name="maxTotalKeypoints" type="uint" value="10000"/>
         </configure>
         <configure component="SolAR2DOverlayOpencv">
             <property name="thickness" type="uint" value="1"/>

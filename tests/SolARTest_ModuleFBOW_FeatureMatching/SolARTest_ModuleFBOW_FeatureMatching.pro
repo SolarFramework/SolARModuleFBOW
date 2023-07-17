@@ -6,7 +6,7 @@ QMAKE_PROJECT_DEPTH = 0
 
 ## global defintions : target lib name, version
 TARGET = SolARTest_ModuleFBOW_FeatureMatching
-VERSION=0.11.0
+VERSION=1.0.0
 PROJECTDEPLOYDIR = $${PWD}/../deploy
 
 DEFINES += MYVERSION=$${VERSION}
@@ -54,10 +54,6 @@ linux {
         LIBS += -L/home/linuxbrew/.linuxbrew/lib # temporary fix caused by grpc with -lre2 ... without -L in grpc.pc
 }
 
-macx {
-    QMAKE_MAC_SDK= macosx
-    QMAKE_CXXFLAGS += -fasm-blocks -x objective-c++
-}
 
 win32 {
     QMAKE_LFLAGS += /MACHINE:X64
@@ -67,10 +63,6 @@ win32 {
     # Windows Kit (msvc2013 64)
     LIBS += -L$$(WINDOWSSDKDIR)lib/winv6.3/um/x64 -lshell32 -lgdi32 -lComdlg32
     INCLUDEPATH += $$(WINDOWSSDKDIR)lib/winv6.3/um/x64
-}
-
-android {
-    ANDROID_ABIS="arm64-v8a"
 }
 
 linux {
@@ -87,11 +79,13 @@ linux {
 }
 
 configfile.path = $${TARGETDEPLOYDIR}/
-configfile.files = $${PWD}/SolARTest_ModuleFBOW_FeatureMatching_conf.xml
+configfile.files = $${PWD}/SolARTest_ModuleFBOW_FeatureMatching_conf.xml \
+                   $${PWD}/SolARTest_ModuleFBOW_FeatureMatching_conf_popsift.xml
 INSTALLS += configfile
 
 DISTFILES += \
     SolARTest_ModuleFBOW_FeatureMatching_conf.xml \
+    SolARTest_ModuleFBOW_FeatureMatching_conf_popsift.xml \
     packagedependencies.txt
 
 #NOTE : Must be placed at the end of the .pro

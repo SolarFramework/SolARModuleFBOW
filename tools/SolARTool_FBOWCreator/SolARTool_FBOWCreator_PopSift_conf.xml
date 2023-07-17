@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<xpcf-registry autoAlias="true">
+    <module uuid="15e1990b-86b2-445c-8194-0cbe80ede970" name="SolARModuleOpenCV" description="SolARModuleOpenCV" path="$XPCF_MODULE_ROOT/SolARBuild/SolARModuleOpenCV/1.0.0/lib/x86_64/shared">
+        <component uuid="5B7396F4-A804-4F3C-A0EB-FB1D56042BB4" name="SolARCameraOpencv" description="SolARCameraOpencv">
+            <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+            <interface uuid="5DDC7DF0-8377-437F-9C81-3643F7676A5B" name="ICamera" description="ICamera"/>
+        </component>
+        <component uuid="b8a8b963-ba55-4ea4-b045-d9e7e8f6db02" name="SolARImagesAsCameraOpencv" description="SolARImagesAsCameraOpencv">
+            <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+            <interface uuid="5DDC7DF0-8377-437F-9C81-3643F7676A5B" name="ICamera" description="ICamera"/>
+        </component>
+        <component uuid="fa4a780a-9720-11e8-9eb6-529269fb1459" name="SolARVideoAsCameraOpencv" description="SolARVideoAsCameraOpencv">
+            <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+            <interface uuid="5DDC7DF0-8377-437F-9C81-3643F7676A5B" name="ICamera" description="ICamera"/>
+        </component>
+        <component uuid="cc51d685-9797-4ffd-a9dd-cec4f367fa6a" name="SolAR2DOverlayOpencv" description="SolAR2DOverlayOpencv">
+            <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+            <interface uuid="62b8b0b5-9344-40e6-a288-e609eb3ff0f1" name="I2DOverlay" description="I2DOverlay"/>
+        </component>
+        <component uuid="19ea4e13-7085-4e3f-92ca-93f200ffb01b" name="SolARImageViewerOpencv" description="SolARImageViewerOpencv">
+            <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+            <interface uuid="b05f3dbb-f93d-465c-aee1-fb58e1480c42" name="IImageViewer" description="IImageViewer"/>
+        </component>
+		<component uuid="fd7fb607-144f-418c-bcf2-f7cf71532c22" name="SolARImageConvertorOpencv" description="SolARImageConvertorOpencv">
+			<interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+			<interface uuid="9c982719-6cb4-4831-aa88-9e01afacbd16" name="IImageConvertor" description="IImageLoader"/>
+        </component>
+    </module>
+    <module uuid="4a43732c-a1b2-11eb-bcbc-0242ac130002" name="SolARModulePopSift" description="SolARModulePopSift" path="$XPCF_MODULE_ROOT/SolARBuild/SolARModulePopSift/1.0.0/lib/x86_64/shared">
+        <component uuid="7fb2aace-a1b1-11eb-bcbc-0242ac130002" name="SolARDescritorsExtractorFromImagePopSift" description="SolARDescritorsExtractorFromImagePopSift">
+            <interface uuid="125f2007-1bf9-421d-9367-fbdc1210d006" name="IComponentIntrospect" description="IComponentIntrospect"/>
+            <interface uuid="1cd4f5f1-6b74-413b-9725-69653aee48ef" name="IDescriptorsExtractorFromImage" description="IDescriptorsExtractorFromImage"/>
+        </component>
+    </module>
+
+    <factory>
+        <bindings>
+            <!--bind interface="ICamera" to="SolARCameraOpencv"/-->
+            <bind interface="ICamera" to="SolARImagesAsCameraOpencv"/>
+            <!--bind interface="ICamera" to="SolARVideoAsCameraOpencv"/-->
+            <bind interface="IDescriptorsExtractorFromImage" to="SolARDescritorsExtractorFromImagePopSift" />
+        </bindings>
+		<injects>
+			<inject to="SolARDescritorsExtractorFromImagePopSift">
+				<bind interface="IImageConvertor" to="SolARImageConvertorOpencv"/>
+			</inject>
+		</injects>
+    </factory>
+	
+    <properties>
+        <configure component="SolARCameraOpencv">
+            <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration_640x480.json"/>
+            <property name="deviceID" type="uint" value="1"/>
+        </configure>
+        <configure component="SolARImagesAsCameraOpencv">
+            <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration_640x480.json"/>	
+            <property name="imagesDirectoryPath" type="string" value="../../../../../data/datafbow/%08d.jpg"/>
+            <property name="delayTime" type="int" value="30"/>
+        </configure>
+        <configure component="SolARVideoAsCameraOpencv">
+            <property name="calibrationFile" type="string" value="../../../../../data/camera_calibration_640x480.json"/>
+            <property name="videoPath" type="string" value="path to video"/>
+            <property name="delayTime" type="int" value="30"/>
+        </configure>
+        <configure component="SolARDescritorsExtractorFromImagePopSift">
+            <property name="mode" type="string" value="PopSift"/>
+            <property name="imageMode" type="string" value="Unsigned Char"/>
+            <property name="nbOctaves" type="int" value="3"/>
+            <property name="nbLevelPerOctave" type="int" value="3"/>
+            <property name="sigma" type="float" value="1.6"/>
+            <property name="threshold" type="float" value="0.001"/>
+            <property name="edgeLimit" type="float" value="10.0"/>
+            <property name="downsampling" type="float" value="-1.0"/>
+            <property name="initialBlur" type="float" value="-1.0"/>
+            <property name="maxTotalKeypoints" type="uint" value="1000"/>
+        </configure>
+        <configure component="SolAR2DOverlayOpencv">
+            <property name="thickness" type="uint" value="1"/>
+            <property name="radius" type="uint" value="2"/>
+            <property name="color"  type="uint">
+                <value>0</value>
+                <value>255</value>
+                <value>0</value>
+            </property>
+        </configure>
+        <configure component="SolARImageViewerOpencv">
+            <property name="title" type="string" value="AR device mapping. Green = inliers, Red = outliers"/>
+            <property name="exitKey" type="int" value="27"/>
+            <property name="width" type="int" value="640"/>
+            <property name="height" type="int" value="480"/>
+        </configure>
+    </properties>
+</xpcf-registry>
