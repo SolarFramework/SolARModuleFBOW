@@ -1,3 +1,7 @@
+# DEPRECATED - This repo is no longer maintained
+
+----
+
 # SolARModuleFBOW
 
 [![License](https://img.shields.io/github/license/SolARFramework/SolARModuleFBOW?style=flat-square&label=License)](https://www.apache.org/licenses/LICENSE-2.0)
